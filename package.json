@@ -1,11 +1,19 @@
 {
-	"name": "validate-env-vars",
+	"name": "@noahtigner/validate-env-vars",
 	"type": "module",
 	"version": "0.1.0",
 	"description": "A lightweight utility to check an .env file for the presence and validity of environment variables, as specified via a template file or the command line.",
 	"main": "src/index.js",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/noahtigner/validate-env-vars.git"
+	},
+	"bugs": {
+		"url": "https://github.com/noahtigner/validate-env-vars/issues",
+		"email": "noahzanetigner@gmail.com"
 	},
 	"keywords": [
 		"env",
