@@ -1,0 +1,38 @@
+{
+	"name": "validate-env-vars",
+	"type": "module",
+	"version": "0.1.0",
+	"description": "A lightweight utility to check an .env file for the presence and validity of environment variables, as specified via a template file or the command line.",
+	"main": "src/index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"keywords": [
+		"env",
+		"environment",
+		"variables",
+		"check",
+		"check-env-vars",
+		"check-env",
+		"check-env-variables",
+		"validate",
+		"validate-env-vars",
+		"validate-env",
+		"validate-env-variables",
+		"ensure",
+		"ensure-env-vars",
+		"ensure-env",
+		"pre-commit",
+		"precommit",
+		"pre-push",
+		"preflight",
+		"pre-flight",
+		"pre-flight-check"
+	],
+	"author": {
+		"name": "Noah Tigner",
+		"email": "noahzanetigner@gmail.com",
+		"url": "https://noahtigner.com"
+	},
+	"license": "MIT"
+}
