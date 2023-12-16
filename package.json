@@ -15,6 +15,9 @@
 		"url": "https://github.com/noahtigner/validate-env-vars/issues",
 		"email": "noahzanetigner@gmail.com"
 	},
+	"publishConfig": {
+		"registry": "https://npm.pkg.github.com"
+	},
 	"keywords": [
 		"env",
 		"environment",
