@@ -1,9 +1,12 @@
 {
 	"name": "@noahtigner/validate-env-vars",
 	"type": "module",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "A lightweight utility to check an .env file for the presence and validity of environment variables, as specified via a template file or the command line.",
 	"main": "src/index.js",
+	"bin": {
+		"validate-env-vars": "./src/index.js"
+	},
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
