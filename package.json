@@ -1,7 +1,7 @@
 {
 	"name": "@noahtigner/validate-env-vars",
 	"type": "module",
-	"version": "0.1.3",
+	"version": "0.1.7",
 	"description": "A lightweight utility to check an .env file for the presence and validity of environment variables, as specified via a template file or the command line.",
 	"main": "src/index.js",
 	"bin": {
@@ -19,7 +19,7 @@
 		"email": "noahzanetigner@gmail.com"
 	},
 	"publishConfig": {
-		"registry": "https://npm.pkg.github.com",
+		"registry": "https://registry.npmjs.org/",
 		"access": "public"
 	},
 	"keywords": [
