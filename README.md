@@ -1,4 +1,4 @@
-<h1 align="center">homelab</h1>
+<h1 align="center">validate-env-vars</h1>
 
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/mui/material-ui/blob/HEAD/LICENSE)
 [![npm downloads](https://img.shields.io/npm/dm/@noahtigner/validate-env-vars.svg)](https://github.com/noahtigner/validate-env-vars/pkgs/npm/validate-env-vars)
