@@ -1,14 +1,21 @@
 {
 	"name": "@noahtigner/validate-env-vars",
 	"type": "module",
-	"version": "0.1.7",
+	"version": "0.1.8",
 	"description": "A lightweight utility to check an .env file for the presence and validity of environment variables, as specified via a template file or the command line.",
 	"main": "src/index.js",
+	"files": [
+		"src/**/*.js"
+	],
 	"bin": {
 		"validate-env-vars": "./src/index.js"
 	},
 	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1"
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"format": "prettier --check .",
+		"format:fix": "prettier --write .",
+		"lint": "eslint . --ext js,ts --report-unused-disable-directives --max-warnings 0",
+		"lint:fix": "eslint . --ext js,ts --report-unused-disable-directives --max-warnings 0 --fix"
 	},
 	"repository": {
 		"type": "git",
@@ -49,5 +56,11 @@
 		"email": "noahzanetigner@gmail.com",
 		"url": "https://noahtigner.com"
 	},
-	"license": "MIT"
+	"license": "MIT",
+	"devDependencies": {
+		"eslint": "^8.56.0",
+		"eslint-config-prettier": "^9.1.0",
+		"eslint-plugin-import": "^2.29.1",
+		"prettier": "^3.1.1"
+	}
 }

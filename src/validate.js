@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import process from 'process';
 
 const ERR_SYMBOL = '\x1b[31m✖\x1b[0m';
 const OK_SYMBOL = '\x1b[32m✔\x1b[0m';

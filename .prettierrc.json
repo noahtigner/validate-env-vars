@@ -1,0 +1,29 @@
+{
+	"singleQuote": true,
+	"trailingComma": "es5",
+	"tabWidth": 4,
+	"useTabs": true,
+	"semi": true,
+	"bracketSpacing": true,
+	"bracketSameLine": false,
+	"overrides": [
+		{
+			"files": "*.md",
+			"options": {
+				"tabWidth": 2
+			}
+		},
+		{
+			"files": "*.yml",
+			"options": {
+				"tabWidth": 2
+			}
+		},
+		{
+			"files": "*.yaml",
+			"options": {
+				"tabWidth": 2
+			}
+		}
+	]
+}
