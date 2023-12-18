@@ -1,0 +1,35 @@
+name: 'Code Quality'
+
+on:
+  push:
+    branches:
+      - '*'
+      # - '!main'
+  pull_request:
+    branches: ['*']
+
+jobs:
+  quality_checks:
+    name: 'Quality Checks'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        id: setup-node
+        uses: actions/setup-node@v4
+        with:
+          # node-version-file: .node-version
+          cache: npm
+
+      - name: Install Dependencies
+        id: npm-ci
+        run: npm ci
+
+      - name: Check formatting with Prettier
+        run: npm run format
+
+      - name: Lint with ESLint
+        run: npm run lint
