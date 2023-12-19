@@ -3,13 +3,13 @@ import {
 	validateEnvVars,
 	parseEnvFile,
 	parseTemplateEnvVar,
-} from './validate.js';
+} from './validate';
 
 try {
 	// parse command line arguments
 	const args = process.argv.slice(2);
 
-	let expectedEnvVars = [];
+	let expectedEnvVars: string[] = [];
 	let envFilePath = '.env';
 
 	for (let i = 0; i < args.length; i++) {
@@ -40,6 +40,10 @@ try {
 	// validate environment variables
 	validateEnvVars(expectedEnvVars, receivedEnvVars);
 } catch (error) {
-	console.error(error.message);
+	console.error(
+		Object.hasOwnProperty.call(error, 'message')
+			? (error as Error).message
+			: error
+	);
 	process.exit(1);
 }

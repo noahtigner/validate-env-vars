@@ -1,14 +1,17 @@
 {
 	"name": "@noahtigner/validate-env-vars",
 	"type": "module",
-	"version": "0.1.8",
+	"version": "0.1.9",
 	"description": "A lightweight utility to check an .env file for the presence and validity of environment variables, as specified via a template file or the command line.",
 	"main": "src/index.js",
 	"files": [
-		"src/**/*.js"
+		"dist/**/*"
 	],
 	"bin": {
-		"validate-env-vars": "./src/index.js"
+		"validate-env-vars": "./dist/index.js"
+	},
+	"engines": {
+		"node": ">=20"
 	},
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
@@ -58,9 +61,13 @@
 	},
 	"license": "MIT",
 	"devDependencies": {
+		"@types/node": "^20.10.5",
+		"@typescript-eslint/eslint-plugin": "^6.15.0",
+		"@typescript-eslint/parser": "^6.15.0",
 		"eslint": "^8.56.0",
 		"eslint-config-prettier": "^9.1.0",
 		"eslint-plugin-import": "^2.29.1",
-		"prettier": "^3.1.1"
+		"prettier": "^3.1.1",
+		"typescript": "^5.3.3"
 	}
 }

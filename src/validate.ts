@@ -15,7 +15,7 @@ const OPTIONAL_SUFFIX = ' (optional)';
  * @param {string} line - The line from the .env file to check.
  * @returns {boolean} - Returns true if the environment variable is defined and has a non-empty value, false otherwise.
  */
-const validateEnvVar = (envVar, line) => {
+const validateEnvVar = (envVar: string, line: string): boolean => {
 	const regex = new RegExp(
 		`^${envVar}=(\\$\\{[a-zA-Z0-9_-]+\\}|[a-zA-Z0-9_-]+)$`
 	);
@@ -30,7 +30,10 @@ const validateEnvVar = (envVar, line) => {
  * @throws {Error} - If the .env file does not exist, or if any of the environment variables are missing or invalid.
  * @returns {void}
  */
-const validateEnvVars = (expectedEnvVars, receivedEnvVars) => {
+const validateEnvVars = (
+	expectedEnvVars: string[],
+	receivedEnvVars: string[]
+): void => {
 	const expectedSet = new Set(expectedEnvVars);
 	const missing = [];
 
@@ -69,7 +72,7 @@ const validateEnvVars = (expectedEnvVars, receivedEnvVars) => {
  * @param {string} line - The line from the .env file to check.
  * @returns {string} - The name of the environment variable. " (optional)" is appended to the name if the variable is optional.
  */
-const parseTemplateEnvVar = (line) => {
+const parseTemplateEnvVar = (line: string): string => {
 	const isOptional = line.toLowerCase().includes('# optional');
 	const strippedLine = line.split('=')[0].split(' ')[0].split('#')[0];
 	return isOptional ? `${strippedLine}${OPTIONAL_SUFFIX}` : strippedLine;
@@ -82,7 +85,7 @@ const parseTemplateEnvVar = (line) => {
  * @throws {Error} - If the .env file does not exist or cannot be read.
  * @returns {string[]} - An array of strings, where each string represents a line from the .env file.
  */
-const parseEnvFile = (envFilePath) => {
+const parseEnvFile = (envFilePath: string): string[] => {
 	const absoluteEnvFilePath = path.resolve(process.cwd(), envFilePath);
 
 	if (!fs.existsSync(absoluteEnvFilePath)) {
