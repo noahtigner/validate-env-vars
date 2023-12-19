@@ -1,9 +1,5 @@
 import process from 'process';
-import {
-	validateEnvVars,
-	parseEnvFile,
-	parseTemplateEnvVar,
-} from './validate';
+import { validateEnvVars, parseEnvFile, parseTemplateEnvVar } from './validate';
 
 try {
 	// parse command line arguments

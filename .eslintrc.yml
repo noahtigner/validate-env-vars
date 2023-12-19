@@ -17,3 +17,8 @@ extends:
   - plugin:@typescript-eslint/recommended
   - plugin:import/recommended
   - prettier
+
+ignorePatterns:
+  - node_modules/
+  - dist/
+  - '**/coverage/.*'
