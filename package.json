@@ -19,7 +19,8 @@
 		"format:fix": "prettier --write .",
 		"lint": "eslint . --ext js,ts --report-unused-disable-directives --max-warnings 0",
 		"lint:fix": "eslint . --ext js,ts --report-unused-disable-directives --max-warnings 0 --fix",
-		"package": "ncc build src/index.ts --minify --license licenses.txt"
+		"typecheck": "tsc --noEmit",
+		"build": "ncc build src/index.ts --minify --license licenses.txt"
 	},
 	"repository": {
 		"type": "git",
