@@ -17,7 +17,7 @@ try {
 				parseTemplateEnvVar
 			);
 			i++;
-		} else if (args[i] === '-f' || args[i] === '--file') {
+		} else if (args[i] === '-e' || args[i] === '--env') {
 			envFilePath = args[i + 1];
 			i++;
 		} else {
