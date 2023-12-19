@@ -1,7 +1,7 @@
 {
 	"name": "@noahtigner/validate-env-vars",
 	"type": "module",
-	"version": "0.1.9",
+	"version": "0.1.11",
 	"description": "A lightweight utility to check an .env file for the presence and validity of environment variables, as specified via a template file or the command line.",
 	"main": "src/index.js",
 	"files": [
@@ -18,7 +18,8 @@
 		"format": "prettier --check .",
 		"format:fix": "prettier --write .",
 		"lint": "eslint . --ext js,ts --report-unused-disable-directives --max-warnings 0",
-		"lint:fix": "eslint . --ext js,ts --report-unused-disable-directives --max-warnings 0 --fix"
+		"lint:fix": "eslint . --ext js,ts --report-unused-disable-directives --max-warnings 0 --fix",
+		"package": "ncc build src/index.ts --minify --license licenses.txt"
 	},
 	"repository": {
 		"type": "git",
@@ -64,6 +65,7 @@
 		"@types/node": "^20.10.5",
 		"@typescript-eslint/eslint-plugin": "^6.15.0",
 		"@typescript-eslint/parser": "^6.15.0",
+		"@vercel/ncc": "^0.38.1",
 		"eslint": "^8.56.0",
 		"eslint-config-prettier": "^9.1.0",
 		"eslint-plugin-import": "^2.29.1",
