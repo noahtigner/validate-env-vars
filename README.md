@@ -45,8 +45,8 @@ validate-env-vars --env .env.local --template .env.template
 
 ## Arguments
 
-| Argument                         | Description                                                                                                                                              |
-| -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `-t <file>`, `--template <file>` | Path to template file to check against. Optional variables can be specified with `# optional` suffix. Either `--template` or `--list` must be specified. |
-| `-l <vars>`, `--list <vars>`     | Comma-separated list of required variables to check for. Either `--template` or `--list` must be specified.                                              |
-| `-e <file>`, `--env <file>`      | Path to .env file to check. Defaults to `.env` in current directory.                                                                                     |
+| Argument                            | Description                                                                                                                                                  |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `-t <file>`<br/>`--template <file>` | Path to template file to check against. Optional variables can be specified with `# optional` suffix.<br/>Either `--template` or `--list` must be specified. |
+| `-l <vars>`<br/>`--list <vars>`     | Comma-separated list of required variables to check for.<br/>Either `--template` or `--list` must be specified.                                              |
+| `-e <file>`<br/>`--env <file>`      | Path to .env file to check. Defaults to `.env` in current directory.                                                                                         |
