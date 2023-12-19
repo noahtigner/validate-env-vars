@@ -36,3 +36,25 @@ jobs:
 
       - name: Type check with TypeScript
         run: npm run typecheck
+
+  unit_tests:
+    name: 'Unit Tests'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        id: setup-node
+        uses: actions/setup-node@v4
+        with:
+          # node-version-file: .node-version
+          cache: npm
+
+      - name: Install Dependencies
+        id: npm-ci
+        run: npm ci
+
+      - name: Run unit tests
+        run: npm run test
