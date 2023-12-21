@@ -16,10 +16,13 @@ const OPTIONAL_SUFFIX = ' (optional)';
  * @returns {boolean} - Returns true if the environment variable is defined and has a non-empty value, false otherwise.
  */
 const validateEnvVar = (envVar: string, line: string): boolean => {
+	const [envVal, comment] = line.split(' ');
 	const regex = new RegExp(
 		`^${envVar}=(\\$\\{[a-zA-Z0-9_-]+\\}|[a-zA-Z0-9_-]+)$`
 	);
-	return regex.test(line);
+	const valIsValid = regex.test(envVal);
+	const commentIsValid = comment ? comment.startsWith('#') : true;
+	return valIsValid && commentIsValid;
 };
 
 /**
@@ -73,6 +76,9 @@ const validateEnvVars = (
  * @returns {string} - The name of the environment variable. " (optional)" is appended to the name if the variable is optional.
  */
 const parseTemplateEnvVar = (line: string): string => {
+	// TODO: rewrite this function
+	// TODO: handle trailing newlines
+	// TODO: handle commented out line
 	const isOptional = line.toLowerCase().includes('# optional');
 	const strippedLine = line.split('=')[0].split(' ')[0].split('#')[0];
 	return isOptional ? `${strippedLine}${OPTIONAL_SUFFIX}` : strippedLine;
