@@ -95,7 +95,7 @@ const parseEnvFile = (envFilePath: string): string[] => {
 		throw new Error(`File not found: ${absoluteEnvFilePath}`);
 	}
 
-	const envFileContent = fs
+	const envFileContent: string[] = fs
 		.readFileSync(absoluteEnvFilePath, 'utf-8')
 		.split('\n')
 		.filter((line) => line.trim() !== '' && !line.trim().startsWith('#'));
