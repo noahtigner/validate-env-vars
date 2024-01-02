@@ -18,10 +18,10 @@ const OPTIONAL_SUFFIX = ' (optional)';
 const validateEnvVar = (envVar: string, line: string): boolean => {
 	const [envVal, comment] = line.split(' ');
 	const regex = new RegExp(
-		`^${envVar}=(\\$\\{[a-zA-Z0-9_-]+\\}|[a-zA-Z0-9_-]+)$`
+		`^${envVar}=(\\$\\{[a-zA-Z0-9_.-]+\\}|[a-zA-Z0-9_.-]+)$`
 	);
 	const valIsValid = regex.test(envVal);
-	const commentIsValid = comment ? comment.startsWith('#') : true;
+	const commentIsValid = !comment || comment.startsWith('#');
 	return valIsValid && commentIsValid;
 };
 

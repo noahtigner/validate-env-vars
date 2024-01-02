@@ -94,6 +94,14 @@ describe('validateEnvVars', () => {
 		).not.toThrow();
 	});
 
+	it('does not throw for valid environment variable (IP Address)', () => {
+		const expectedEnvVars = ['IP'];
+		const receivedEnvVars = ['IP=127.0.0.1'];
+		expect(() =>
+			validateEnvVars(expectedEnvVars, receivedEnvVars)
+		).not.toThrow();
+	});
+
 	it('does not throw for optional environment variable', () => {
 		const expectedEnvVars = ['TEST1', 'TEST2 (optional)'];
 		const receivedEnvVars = ['TEST1=abc123'];
