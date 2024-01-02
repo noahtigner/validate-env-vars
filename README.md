@@ -3,9 +3,9 @@
 <div align="center">
 
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/noahtigner/validate-env-vars/blob/HEAD/LICENSE)
-[![latest](https://img.shields.io/npm/v/@noahtigner/validate-env-vars/latest.svg)](https://www.npmjs.com/package/@noahtigner/validate-env-vars)
+[![latest](https://img.shields.io/npm/v/validate-env-vars/latest.svg)](https://www.npmjs.com/package/validate-env-vars)
 [![last commit](https://img.shields.io/github/last-commit/noahtigner/validate-env-vars.svg)](https://github.com/noahtigner/validate-env-vars/)
-[![npm downloads](https://img.shields.io/npm/dm/@noahtigner/validate-env-vars.svg)](https://www.npmjs.com/package/@noahtigner/validate-env-vars) \
+[![npm downloads](https://img.shields.io/npm/dm/validate-env-vars.svg)](https://www.npmjs.com/package/validate-env-vars) \
 [![Coverage](./badges/coverage.svg)](./badges/coverage.svg)
 [![Code Quality](https://github.com/noahtigner/validate-env-vars/actions/workflows/quality.yml/badge.svg)](https://github.com/noahtigner/validate-env-vars/actions/workflows/quality.yml)
 [![CodeQL](https://github.com/noahtigner/validate-env-vars/actions/workflows/codeql.yml/badge.svg)](https://github.com/noahtigner/validate-env-vars/actions/workflows/codeql.yml)
@@ -22,7 +22,7 @@
 Using npm:
 
 ```bash
-npm install @noahtigner/validate-env-vars --save-dev
+npm install validate-env-vars --save-dev
 ```
 
 ## Usage
