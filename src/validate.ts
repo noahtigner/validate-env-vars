@@ -76,11 +76,8 @@ const validateEnvVars = (
  * @returns {string} - The name of the environment variable. " (optional)" is appended to the name if the variable is optional.
  */
 const parseTemplateEnvVar = (line: string): string => {
-	// TODO: rewrite this function
-	// TODO: handle trailing newlines
-	// TODO: handle commented out line
 	const isOptional = line.toLowerCase().includes('# optional');
-	const strippedLine = line.split('=')[0].split(' ')[0].split('#')[0];
+	const strippedLine = line.split('=')[0].split(' ')[0].split('#')[0].trim();
 	return isOptional ? `${strippedLine}${OPTIONAL_SUFFIX}` : strippedLine;
 };
 
@@ -100,7 +97,8 @@ const parseEnvFile = (envFilePath: string): string[] => {
 
 	const envFileContent = fs
 		.readFileSync(absoluteEnvFilePath, 'utf-8')
-		.split('\n');
+		.split('\n')
+		.filter((line) => line.trim() !== '' && !line.trim().startsWith('#'));
 
 	return envFileContent;
 };

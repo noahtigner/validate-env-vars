@@ -9,6 +9,7 @@
 [![Coverage](./badges/coverage.svg)](./badges/coverage.svg)
 [![Code Quality](https://github.com/noahtigner/validate-env-vars/actions/workflows/quality.yml/badge.svg)](https://github.com/noahtigner/validate-env-vars/actions/workflows/quality.yml)
 [![CodeQL](https://github.com/noahtigner/validate-env-vars/actions/workflows/codeql.yml/badge.svg)](https://github.com/noahtigner/validate-env-vars/actions/workflows/codeql.yml)
+[![TypeScript Version](https://img.shields.io/github/package-json/dependency-version/rosswilliams/ts-case-convert/dev/typescript.svg)](https://github.com/noahtigner/validate-env-vars/blob/main/package.json#L112)
 
 </div>
 
