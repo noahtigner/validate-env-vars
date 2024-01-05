@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import parseArgs from './parseArgs';
 import { validateEnvVars } from './validate';
 

@@ -1,7 +1,7 @@
 {
 	"name": "validate-env-vars",
 	"type": "module",
-	"version": "0.2.2",
+	"version": "0.2.3",
 	"description": "A lightweight utility to check an .env file for the presence and validity of environment variables, as specified via a template file or the command line.",
 	"main": "src/index.js",
 	"files": [
