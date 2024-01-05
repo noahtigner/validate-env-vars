@@ -17,8 +17,9 @@ const OPTIONAL_SUFFIX = ' (optional)';
  */
 const validateEnvVar = (envVar: string, line: string): boolean => {
 	const [envVal, comment] = line.split(' ');
+	// the ASCII range for all printable characters except spaces is from ! (33) to ~ (126)
 	const regex = new RegExp(
-		`^${envVar}=(\\$\\{[a-zA-Z0-9_.-]+\\}|[a-zA-Z0-9_.-]+)$`
+		`^${envVar}=([!-~]+)$`
 	);
 	const valIsValid = regex.test(envVal);
 	const commentIsValid = !comment || comment.startsWith('#');

@@ -9,30 +9,23 @@ import {
 describe('validateEnvVar', () => {
 	it('returns false for special characters', async () => {
 		const special = [
-			'$',
-			'%',
-			'&',
-			'*',
-			'(',
-			')',
-			'+',
-			'=',
-			'[',
-			']',
-			'{',
-			'}',
-			'|',
-			'\\',
-			';',
-			':',
-			"'",
-			'"',
-			',',
-			'<',
-			'>',
-			'/',
-			'?',
-			' ',
+			// Non-ASCII characters
+			'Ø',
+			'å',
+			'ß',
+			'ü',
+			'€',
+			// Non-printable ASCII characters
+			String.fromCharCode(0), // NULL
+			String.fromCharCode(7), // BELL
+			String.fromCharCode(8), // BACKSPACE
+			String.fromCharCode(9), // TAB
+			String.fromCharCode(10), // LINE FEED
+			String.fromCharCode(13), // CARRIAGE RETURN
+			String.fromCharCode(27), // ESCAPE
+			String.fromCharCode(127), // DELETE
+			// emoji
+			'😀',
 		];
 		for (const char of special) {
 			const result = validateEnvVar('TEST', `TEST=abc${char}123`);
@@ -64,7 +57,7 @@ describe('validateEnvVar', () => {
 describe('validateEnvVars', () => {
 	it('throws for invalid environment variable', () => {
 		const expectedEnvVars = ['TEST1', 'TEST2'];
-		const receivedEnvVars = ['TEST1=abc123', 'TEST2=def$%'];
+		const receivedEnvVars = ['TEST1=abc123', 'TEST2=defØ'];
 		expect(() =>
 			validateEnvVars(expectedEnvVars, receivedEnvVars)
 		).toThrow();
@@ -97,6 +90,14 @@ describe('validateEnvVars', () => {
 	it('does not throw for valid environment variable (IP Address)', () => {
 		const expectedEnvVars = ['IP'];
 		const receivedEnvVars = ['IP=127.0.0.1'];
+		expect(() =>
+			validateEnvVars(expectedEnvVars, receivedEnvVars)
+		).not.toThrow();
+	});
+
+	it('does not throw for valid environment variable (URL)', () => {
+		const expectedEnvVars = ['API_URL'];
+		const receivedEnvVars = ['API_URL=http://127.0.0.1/api'];
 		expect(() =>
 			validateEnvVars(expectedEnvVars, receivedEnvVars)
 		).not.toThrow();

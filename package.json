@@ -1,7 +1,7 @@
 {
 	"name": "validate-env-vars",
 	"type": "module",
-	"version": "0.2.3",
+	"version": "0.2.4",
 	"description": "A lightweight utility to check an .env file for the presence and validity of environment variables, as specified via a template file or the command line.",
 	"main": "src/index.js",
 	"files": [
@@ -21,7 +21,8 @@
 		"lint": "eslint . --ext js,ts --report-unused-disable-directives --max-warnings 0",
 		"lint:fix": "eslint . --ext js,ts --report-unused-disable-directives --max-warnings 0 --fix",
 		"typecheck": "tsc --noEmit",
-		"build": "ncc build src/index.ts --minify --license licenses.txt"
+		"build": "ncc build src/index.ts --minify --license licenses.txt",
+		"prepublishOnly": "npm run build"
 	},
 	"repository": {
 		"type": "git",
