@@ -26,7 +26,13 @@
 		/* Linting */
 		"noUnusedLocals": true,
 		"noUnusedParameters": true,
-		"noFallthroughCasesInSwitch": true
+		"noFallthroughCasesInSwitch": true,
+		"checkJs": true,
+		"allowJs": true,
+
+		// output
+		"declaration": true,
+		"declarationMap": true
 	},
 	"exclude": ["./dist", "./node_modules", "./__tests__", "./coverage"]
 }
