@@ -4,7 +4,13 @@ import { validateInputSchema, validateInputFile } from './validateInput';
 import logParseResults from './logParseResults';
 import type { ZodStringRecord } from './types';
 
-async function validateEnvVars(
+/**
+ * Validate environment variables against a Zod schema
+ * 
+ * @param schema - The Zod schema to validate against. Must be a z.object of z.strings or z.enums
+ * @param envPath - The path to the .env file to use (defaults to '.env')
+ */
+function validateEnvVars(
 	schema: ZodStringRecord,
 	envPath: string = '.env'
 ) {
