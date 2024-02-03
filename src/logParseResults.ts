@@ -5,9 +5,9 @@ const OK_SYMBOL = '\x1b[32m✔\x1b[0m';
 
 /**
  * Logs the results of a parsing operation.
- * 
+ *
  * Logs a success message for each variable that was successfully parsed, and an error message for each variable that failed to parse.
- * 
+ *
  * @param {SafeParseReturnType} parseResults - The result of a parsing operation.
  * @param {ZodStringRecord} schema - The schema used to parse the input.
  * @returns {number} The number of errors logged.

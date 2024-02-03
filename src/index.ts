@@ -6,14 +6,11 @@ import type { ZodStringRecord } from './types';
 
 /**
  * Validate environment variables against a Zod schema
- * 
+ *
  * @param schema - The Zod schema to validate against. Must be a z.object of z.strings or z.enums
  * @param envPath - The path to the .env file to use (defaults to '.env')
  */
-function validateEnvVars(
-	schema: ZodStringRecord,
-	envPath: string = '.env'
-) {
+function validateEnvVars(schema: ZodStringRecord, envPath: string = '.env') {
 	try {
 		validateInputSchema(schema);
 		validateInputFile(envPath);
