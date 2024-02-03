@@ -1,5 +1,9 @@
 import { z } from 'zod';
-import validateEnvVars from '../src/index';
+import validateEnvVars, {
+	envEnum,
+	envNonEmptyString,
+	envObject,
+} from '../src/index';
 import { validateInputFile } from '../src/validateInput';
 import { ERR_COLOR, ERR_SYMBOL, RESET_COLOR } from '../src/constants';
 
@@ -113,5 +117,16 @@ describe('validateEnvVars', () => {
 			3,
 			`${ERR_COLOR}2 Missing or invalid environment variables${RESET_COLOR}`
 		);
+	});
+	it('accepts an envObject', () => {
+		const schema = envObject({
+			EXPECTED_1: envNonEmptyString(),
+			EXPECTED_2: envEnum(['true', 'false']),
+		});
+		const envPath = './__tests__/.env.test';
+
+		expect(() => {
+			validateEnvVars(schema, envPath);
+		}).not.toThrow();
 	});
 });

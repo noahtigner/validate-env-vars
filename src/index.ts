@@ -49,3 +49,4 @@ function validateEnvVars(schema: ZodStringRecord, envPath: string = '.env') {
 }
 
 export default validateEnvVars;
+export * from './schemaTypes';
