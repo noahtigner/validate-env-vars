@@ -2,7 +2,7 @@
 	"name": "validate-env-vars",
 	"type": "module",
 	"version": "0.3.2",
-	"description": "A lightweight utility to check an .env file for the presence and validity of environment variables, as specified via a template file or the command line.",
+	"description": "A lightweight utility to check the presence and validity of environment variables, as specified by a Zod schema",
 	"main": "src/index.js",
 	"files": [
 		"dist/**/*"
@@ -59,7 +59,10 @@
 		"pre-push",
 		"preflight",
 		"pre-flight",
-		"pre-flight-check"
+		"pre-flight-check",
+		"dotenv",
+		"vite",
+		"config"
 	],
 	"author": {
 		"name": "Noah Tigner",

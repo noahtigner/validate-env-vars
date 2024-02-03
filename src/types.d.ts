@@ -1,4 +1,4 @@
-import { ZodObject, type ZodType } from 'zod';
+import { ZodObject, type ZodType, type SafeParseReturnType } from 'zod';
 
 export type ZodStringRecord = ZodObject<Record<string, ZodType<string>>>;
 export type ZodSafeParseReturnType = SafeParseReturnType<

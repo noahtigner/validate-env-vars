@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import logParseResults, { ERR_SYMBOL, OK_SYMBOL } from '../src/logParseResults';
+import type { ZodSafeParseReturnType } from '../src/types';
 
 describe('logParseResults', () => {
 	it('logs the results of a successful parse', () => {
@@ -7,7 +8,7 @@ describe('logParseResults', () => {
 			VAR1: z.string(),
 			VAR2: z.enum(['value1', 'value2']),
 		});
-		const parseResults = {
+		const parseResults: ZodSafeParseReturnType = {
 			success: true,
 			data: {
 				VAR1: 'value1',
@@ -27,10 +28,11 @@ describe('logParseResults', () => {
 			VAR1: z.string(),
 			VAR2: z.enum(['value1', 'value2']),
 		});
-		const parseResults = {
+		const parseResults: ZodSafeParseReturnType = {
 			success: false,
 			error: {
 				issues: [
+					// @ts-expect-error - shortcut for testing
 					{
 						path: ['VAR1'],
 						message: 'Invalid value',

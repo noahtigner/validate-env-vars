@@ -14,10 +14,10 @@
 </div>
 
 <p align="center">
-    A lightweight utility to check an .env file for the presence and validity of environment variables, as specified via a template file or the command line
+    A lightweight utility to check the presence and validity of environment variables, as specified by a Zod schema
 </p>
 
-## Installation
+# Installation
 
 Using npm:
 
@@ -25,30 +25,89 @@ Using npm:
 npm install validate-env-vars --save-dev
 ```
 
-## Usage
+# Usage Examples
 
-Check your .env file against every required variable in your template file:
+### Create an executable JS file to check an .env file against a Zod schema:
 
-```bash
-validate-env-vars --template .env.template
+```javascript
+#!/usr/bin/env node
+
+import { z } from 'zod';
+import validateEnvVars from 'validate-env-vars';
+
+const envSchema = z.object({
+	PORT: z.string(),
+	NODE_ENV: z.string(),
+	API_URL: z.string(),
+});
+
+validateEnvVars(envSchema);
 ```
 
-Check your .env file against a list of required variables:
+---
 
-```bash
-validate-env-vars --list VAR1,VAR2,VAR3
+### Programmatically check an .env.production file against a Zod schema:
+
+```javascript
+import { z } from 'zod';
+import validateEnvVars from 'validate-env-vars';
+
+const envSchema = z.object({
+    PORT: z.string(),
+    NODE_ENV: z.string(),
+    GITHUB_USERNAME: z.string(),
+});
+
+const prefilight() => {
+    try {
+        validateEnvVars(envSchema, '.env.production');
+        // ... other code
+    }
+    catch (error) {
+        console.error(error);
+        // ... other code
+    }
+}
 ```
 
-Check a specific .env file:
+---
 
-```bash
-validate-env-vars --env .env.local --template .env.template
+### Check env vars before Vite startup and build:
+
+1. Define a Zod schema in a .ts file at the root of your project
+
+```javascript
+import { z } from 'zod';
+
+// define the schema for the environment variables
+const envSchema = z.object({
+    PATH_PREFIX: z.string(),
+    NODE_ENV: z.enum(['development', 'production', 'test']),
+    API_URL: z.string().url(),
+});
+
+// make the type of the environment variables available globally
+declare global {
+    type Env = z.infer<typeof envSchema>;
+}
+
+export default envSchema;
 ```
 
-## Arguments
+2. Import `validateEnvVars` and your schema and add a plugin to your Vite config to call `validateEnvVars` on `buildStart`
 
-| Argument                            | Description                                                                                                                                                  |
-| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `-t <file>`<br/>`--template <file>` | Path to template file to check against. Optional variables can be specified with `# optional` suffix.<br/>Either `--template` or `--list` must be specified. |
-| `-l <vars>`<br/>`--list <vars>`     | Comma-separated list of required variables to check for.<br/>Either `--template` or `--list` must be specified.                                              |
-| `-e <file>`<br/>`--env <file>`      | Path to .env file to check. Defaults to `.env` in current directory.                                                                                         |
+```javascript
+import { defineConfig } from 'vitest/config';
+import envConfigSchema from './env.config';
+import validateEnvVars from 'validate-env-vars';
+
+export default defineConfig({
+  plugins: [
+    {
+      name: 'validate-env-vars',
+      buildStart: () => validateEnvVars(envConfigSchema),
+    },
+    // other plugins...
+  ],
+  // other options...
+```
