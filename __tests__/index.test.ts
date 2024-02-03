@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import validateEnvVars from '../src/index';
 import { validateInputFile } from '../src/validateInput';
-import { ERR_SYMBOL } from '../src/logParseResults';
+import { ERR_COLOR, ERR_SYMBOL, RESET_COLOR } from '../src/constants';
 
 jest.mock('../src/validateInput');
 
@@ -103,15 +103,15 @@ describe('validateEnvVars', () => {
 		expect(consoleErrorSpy).toHaveBeenCalledTimes(3);
 		expect(consoleErrorSpy).toHaveBeenNthCalledWith(
 			1,
-			`${ERR_SYMBOL} UNDEF_1: \x1b[31mRequired\x1b[0m`
+			`${ERR_SYMBOL} UNDEF_1: ${ERR_COLOR}Required${RESET_COLOR}`
 		);
 		expect(consoleErrorSpy).toHaveBeenNthCalledWith(
 			2,
-			`${ERR_SYMBOL} UNDEF_2: \x1b[31mRequired\x1b[0m`
+			`${ERR_SYMBOL} UNDEF_2: ${ERR_COLOR}Required${RESET_COLOR}`
 		);
 		expect(consoleErrorSpy).toHaveBeenNthCalledWith(
 			3,
-			`\x1b[31m2 Missing or invalid environment variables\x1b[0m`
+			`${ERR_COLOR}2 Missing or invalid environment variables${RESET_COLOR}`
 		);
 	});
 });

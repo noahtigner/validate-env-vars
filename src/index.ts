@@ -40,13 +40,12 @@ function validateEnvVars(schema: ZodStringRecord, envPath: string = '.env') {
 		}
 
 		console.log(
-			`${ERR_COLOR}All required environment variables are valid${RESET_COLOR}`
+			`${OK_COLOR}All required environment variables are valid${RESET_COLOR}`
 		);
 	} catch (err) {
-		console.error(`${OK_COLOR}${(err as Error).message}${RESET_COLOR}`);
+		console.error(`${ERR_COLOR}${(err as Error).message}${RESET_COLOR}`);
 		process.exit(1);
 	}
 }
 
 export default validateEnvVars;
-export * from './schemaTypes';

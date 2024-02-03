@@ -1,6 +1,12 @@
 import { z } from 'zod';
-import logParseResults, { ERR_SYMBOL, OK_SYMBOL } from '../src/logParseResults';
+import logParseResults from '../src/logParseResults';
 import type { ZodSafeParseReturnType } from '../src/types';
+import {
+	ERR_COLOR,
+	ERR_SYMBOL,
+	OK_SYMBOL,
+	RESET_COLOR,
+} from '../src/constants';
 
 describe('logParseResults', () => {
 	it('logs the results of a successful parse', () => {
@@ -50,7 +56,7 @@ describe('logParseResults', () => {
 
 		expect(errorSpy).toHaveBeenNthCalledWith(
 			1,
-			`${ERR_SYMBOL} VAR1: \x1b[31mInvalid value\x1b[0m`
+			`${ERR_SYMBOL} VAR1: ${ERR_COLOR}Invalid value${RESET_COLOR}`
 		);
 		expect(logSpy).toHaveBeenNthCalledWith(1, `${OK_SYMBOL} VAR2`);
 		expect(errorCount).toBe(1);
