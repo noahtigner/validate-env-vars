@@ -1,7 +1,9 @@
 import { config } from 'dotenv';
 import { expand } from 'dotenv-expand';
+
 import { validateInputSchema, validateInputFile } from './validateInput';
 import logParseResults from './logParseResults';
+import { ERR_COLOR, OK_COLOR, RESET_COLOR } from './constants';
 import type { ZodStringRecord } from './types';
 
 /**
@@ -36,10 +38,15 @@ function validateEnvVars(schema: ZodStringRecord, envPath: string = '.env') {
 				`${errorCount} Missing or invalid environment variables`
 			);
 		}
+
+		console.log(
+			`${ERR_COLOR}All required environment variables are valid${RESET_COLOR}`
+		);
 	} catch (err) {
-		console.error(`\x1b[31m${(err as Error).message}\x1b[0m`);
+		console.error(`${OK_COLOR}${(err as Error).message}${RESET_COLOR}`);
 		process.exit(1);
 	}
 }
 
 export default validateEnvVars;
+export * from './schemaTypes';

@@ -1,7 +1,5 @@
+import { ERR_COLOR, ERR_SYMBOL, OK_SYMBOL, RESET_COLOR } from './constants';
 import type { ZodSafeParseReturnType, ZodStringRecord } from './types';
-
-const ERR_SYMBOL = '\x1b[31m✕\x1b[0m';
-const OK_SYMBOL = '\x1b[32m✔\x1b[0m';
 
 /**
  * Logs the results of a parsing operation.
@@ -36,7 +34,7 @@ function logParseResults(
 			console.log(`${OK_SYMBOL} ${varName}`);
 		} else {
 			console.error(
-				`${ERR_SYMBOL} ${varName}: \x1b[31m${errorMessage}\x1b[0m`
+				`${ERR_SYMBOL} ${varName}: ${ERR_COLOR}${errorMessage}${RESET_COLOR}`
 			);
 		}
 	});
@@ -45,4 +43,3 @@ function logParseResults(
 }
 
 export default logParseResults;
-export { ERR_SYMBOL, OK_SYMBOL };
