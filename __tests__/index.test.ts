@@ -118,6 +118,17 @@ describe('validateEnvVars', () => {
 			`${ERR_COLOR}2 Missing or invalid environment variables${RESET_COLOR}`
 		);
 	});
+	it('throws error instead of exiting if exitOnError is false', () => {
+		const schema = z.object({
+			UNDEF_1: z.string(),
+			UNDEF_2: z.string(),
+		});
+		const envPath = './__tests__/.env.test';
+
+		expect(() => {
+			validateEnvVars(schema, envPath, false);
+		}).toThrow('2 Missing or invalid environment variables');
+	});
 	it('accepts an envObject', () => {
 		const schema = envObject({
 			EXPECTED_1: envNonEmptyString(),

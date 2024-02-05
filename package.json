@@ -1,7 +1,7 @@
 {
 	"name": "validate-env-vars",
 	"type": "module",
-	"version": "0.3.6",
+	"version": "0.3.7",
 	"description": "A lightweight utility to check the presence and validity of environment variables, as specified by a Zod schema",
 	"main": "src/index.js",
 	"files": [
@@ -119,6 +119,11 @@
 		"typescript": "^5.3.3"
 	},
 	"peerDependencies": {
+		"dotenv": "^16.4.0",
+		"dotenv-expand": "^10.0.0",
+		"zod": "^3.22.4"
+	},
+	"dependencies": {
 		"dotenv": "^16.4.0",
 		"dotenv-expand": "^10.0.0",
 		"zod": "^3.22.4"
