@@ -52,7 +52,7 @@ describe('validateEnvVars', () => {
 		});
 		const envPath = './__tests__/.env.test';
 
-		validateEnvVars(schema, envPath);
+		validateEnvVars(schema, envPath, true);
 
 		console.log(process.env);
 
@@ -61,7 +61,9 @@ describe('validateEnvVars', () => {
 
 	it('defaults to .env if no path is provided', () => {
 		// assert that validateInputFile is called with the default path
-		validateEnvVars(z.object({}));
+		expect(() => validateEnvVars(z.object({}))).toThrow(
+			`ENOENT: no such file or directory, open '.env'`
+		);
 		expect(validateInputFile).toHaveBeenCalledWith('.env');
 	});
 
@@ -75,7 +77,7 @@ describe('validateEnvVars', () => {
 		// mock validateInputFile to not throw
 		(validateInputFile as jest.Mock).mockReturnValue(true);
 
-		validateEnvVars(schema, envPath);
+		validateEnvVars(schema, envPath, true);
 
 		expect(processExitSpy).toHaveBeenCalledWith(1);
 
@@ -89,7 +91,7 @@ describe('validateEnvVars', () => {
 		});
 		const envPath = 'nonexistent-file';
 
-		validateEnvVars(schema, envPath);
+		validateEnvVars(schema, envPath, true);
 
 		expect(processExitSpy).toHaveBeenCalledWith(1);
 	});
@@ -101,7 +103,7 @@ describe('validateEnvVars', () => {
 		});
 		const envPath = './__tests__/.env.test';
 
-		validateEnvVars(schema, envPath);
+		validateEnvVars(schema, envPath, true);
 
 		expect(processExitSpy).toHaveBeenCalledWith(1);
 		expect(consoleErrorSpy).toHaveBeenCalledTimes(3);
@@ -118,6 +120,7 @@ describe('validateEnvVars', () => {
 			`${ERR_COLOR}2 Missing or invalid environment variables${RESET_COLOR}`
 		);
 	});
+
 	it('throws error instead of exiting if exitOnError is false', () => {
 		const schema = z.object({
 			UNDEF_1: z.string(),
@@ -129,6 +132,7 @@ describe('validateEnvVars', () => {
 			validateEnvVars(schema, envPath, false);
 		}).toThrow('2 Missing or invalid environment variables');
 	});
+
 	it('accepts an envObject', () => {
 		const schema = envObject({
 			EXPECTED_1: envNonEmptyString(),

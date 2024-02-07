@@ -49,12 +49,12 @@ function validate(schema: ZodStringRecord, envPath: string) {
  *
  * @param schema - The Zod schema to validate against. Must be a z.object of z.strings or z.enums
  * @param envPath - The path to the .env file to use (defaults to '.env')
- * @param exitOnError - Whether to exit the process if validation fails (defaults to true)
+ * @param exitOnError - Whether to exit the process if validation fails (defaults to false)
  */
 function validateEnvVars(
 	schema: ZodStringRecord,
 	envPath: string = '.env',
-	exitOnError: boolean = true
+	exitOnError: boolean = false
 ) {
 	try {
 		validate(schema, envPath);
