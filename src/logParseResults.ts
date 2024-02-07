@@ -1,5 +1,5 @@
 import { ERR_COLOR, ERR_SYMBOL, OK_SYMBOL, RESET_COLOR } from './constants';
-import type { ZodSafeParseReturnType, ZodStringRecord } from './types';
+import type { EnvObject, ZodSafeParseReturnType } from './schemaTypes';
 
 /**
  * Logs the results of a parsing operation.
@@ -7,12 +7,12 @@ import type { ZodSafeParseReturnType, ZodStringRecord } from './types';
  * Logs a success message for each variable that was successfully parsed, and an error message for each variable that failed to parse.
  *
  * @param {SafeParseReturnType} parseResults - The result of a parsing operation.
- * @param {ZodStringRecord} schema - The schema used to parse the input.
+ * @param {EnvObject} schema - The schema used to parse the input.
  * @returns {number} The number of errors logged.
  */
 function logParseResults(
 	parseResults: ZodSafeParseReturnType,
-	schema: ZodStringRecord
+	schema: EnvObject
 ): number {
 	// get the keys from the schema
 	const schemaKeys: Record<string, string | null> = {};

@@ -137,6 +137,9 @@ describe('validateEnvVars', () => {
 		const schema = envObject({
 			EXPECTED_1: envNonEmptyString(),
 			EXPECTED_2: envEnum(['true', 'false']),
+			OPT_UNION: z
+				.union([envNonEmptyString(), envEnum(['true', 'false'])])
+				.optional(),
 		});
 		const envPath = './__tests__/.env.test';
 

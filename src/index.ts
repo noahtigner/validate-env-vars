@@ -4,16 +4,16 @@ import { expand } from 'dotenv-expand';
 import { validateInputSchema, validateInputFile } from './validateInput';
 import logParseResults from './logParseResults';
 import { ERR_COLOR, OK_COLOR, RESET_COLOR } from './constants';
-import type { ZodStringRecord } from './types';
+import type { EnvObject } from './schemaTypes';
 
 /**
  * Validate environment variables against a Zod schema
  *
- * @param schema - The Zod schema to validate against. Must be a z.object of z.strings or z.enums
- * @param envPath - The path to the .env file to use (defaults to '.env')
+ * @param {EnvObject} schema - The Zod schema to validate against. Must be a z.object of z.strings or z.enums
+ * @param {string} envPath - The path to the .env file to use (defaults to '.env')
  * @throws {Error} If any environment variables are missing or invalid, or if `envPath` is not found
  */
-function validate(schema: ZodStringRecord, envPath: string) {
+function validate(schema: EnvObject, envPath: string) {
 	validateInputSchema(schema);
 	validateInputFile(envPath);
 
@@ -47,20 +47,22 @@ function validate(schema: ZodStringRecord, envPath: string) {
 /**
  * Validate environment variables against a Zod schema
  *
- * @param schema - The Zod schema to validate against. Must be a z.object of z.strings or z.enums
- * @param envPath - The path to the .env file to use (defaults to '.env')
- * @param exitOnError - Whether to exit the process if validation fails (defaults to false)
+ * @param {EnvObject} schema - The Zod schema to validate against. Must be a z.object of z.strings or z.enums
+ * @param {string} envPath - The path to the .env file to use (defaults to '.env')
+ * @param {boolean} exitOnError - Whether to exit the process if validation fails (defaults to false)
  */
 function validateEnvVars(
-	schema: ZodStringRecord,
+	schema: EnvObject,
 	envPath: string = '.env',
 	exitOnError: boolean = false
 ) {
 	try {
 		validate(schema, envPath);
 	} catch (err) {
-		console.error(`${ERR_COLOR}${(err as Error).message}${RESET_COLOR}`);
 		if (exitOnError) {
+			console.error(
+				`${ERR_COLOR}${(err as Error).message}${RESET_COLOR}`
+			);
 			process.exit(1);
 		} else {
 			throw err;

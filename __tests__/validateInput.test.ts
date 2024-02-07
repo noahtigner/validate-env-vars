@@ -15,7 +15,7 @@ describe('validateInputSchema', () => {
 		expect(() => {
 			// @ts-expect-error - testing invalid input
 			validateInputSchema(schema);
-		}).not.toThrow();
+		}).toThrow();
 	});
 	it('does not throw if passed a zodObject of strings', () => {
 		const schema = z.object({
@@ -26,10 +26,31 @@ describe('validateInputSchema', () => {
 			validateInputSchema(schema);
 		}).not.toThrow();
 	});
-	it('does not throw if passed a zodObject of strings and enums', () => {
+	it('does not throw if passed a zodObject of enums', () => {
 		const schema = z.object({
 			VAR1: z.string(),
 			VAR2: z.enum(['value1', 'value2']),
+		});
+		expect(() => {
+			validateInputSchema(schema);
+		}).not.toThrow();
+	});
+	it('does not throw if passed a zodObject of literals', () => {
+		const schema = z.object({
+			VAR1: z.string(),
+			VAR2: z.literal('value1'),
+		});
+		expect(() => {
+			validateInputSchema(schema);
+		}).not.toThrow();
+	});
+	it('does not throw if passed a zodObject of mixed types', () => {
+		const schema = z.object({
+			VAR1: z.string(),
+			VAR2: z.enum(['value1', 'value2']),
+			VAR3: z.literal('value1'),
+			VAR4: z.union([z.string().url(), z.string()]).optional(),
+			VAR5: z.union([z.string().url(), z.string().optional()]),
 		});
 		expect(() => {
 			validateInputSchema(schema);
