@@ -22,4 +22,4 @@ extends:
 ignorePatterns:
   - node_modules/
   - dist/
-  - '**/coverage/.*'
+  - coverage/

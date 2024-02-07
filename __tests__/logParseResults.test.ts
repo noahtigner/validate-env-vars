@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import logParseResults from '../src/logParseResults';
-import type { ZodSafeParseReturnType } from '../src/types';
+import type { ZodSafeParseReturnType } from '../src/schemaTypes';
 import {
 	ERR_COLOR,
 	ERR_SYMBOL,
