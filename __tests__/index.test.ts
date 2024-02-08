@@ -54,8 +54,6 @@ describe('validateEnvVars', () => {
 
 		validateEnvVars(schema, envPath, true);
 
-		console.log(process.env);
-
 		expect(processExitSpy).toHaveBeenCalledWith(1);
 	});
 
@@ -117,7 +115,7 @@ describe('validateEnvVars', () => {
 		);
 		expect(consoleErrorSpy).toHaveBeenNthCalledWith(
 			3,
-			`${ERR_COLOR}2 Missing or invalid environment variables${RESET_COLOR}`
+			`${ERR_COLOR}2 missing or invalid environment variables${RESET_COLOR}`
 		);
 	});
 
@@ -130,7 +128,7 @@ describe('validateEnvVars', () => {
 
 		expect(() => {
 			validateEnvVars(schema, envPath, false);
-		}).toThrow('2 Missing or invalid environment variables');
+		}).toThrow('2 missing or invalid environment variables');
 	});
 
 	it('accepts an envObject', () => {

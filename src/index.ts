@@ -35,7 +35,7 @@ function validate(schema: EnvObject, envPath: string) {
 	// throw if parsing failed
 	if (!parsed.success) {
 		throw new Error(
-			`${errorCount} Missing or invalid environment variables`
+			`${errorCount} missing or invalid environment variable${errorCount === 1 ? '' : 's'}`
 		);
 	}
 
