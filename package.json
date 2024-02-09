@@ -3,9 +3,9 @@
 	"type": "module",
 	"version": "0.3.10",
 	"description": "A lightweight utility to check the presence and validity of environment variables, as specified by a Zod schema",
-	"main": "src/index.js",
+	"main": "./dist/index.js",
 	"files": [
-		"dist/**/*"
+		"./dist/**/*"
 	],
 	"exports": {
 		".": {
