@@ -120,12 +120,12 @@
 	},
 	"peerDependencies": {
 		"dotenv": "^16.4.0",
-		"dotenv-expand": "^10.0.0",
+		"dotenv-expand": "^11.0.3",
 		"zod": "^3.22.4"
 	},
 	"dependencies": {
 		"dotenv": "^16.4.0",
-		"dotenv-expand": "^10.0.0",
+		"dotenv-expand": "^11.0.3",
 		"zod": "^3.22.4"
 	}
 }
