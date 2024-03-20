@@ -30,7 +30,7 @@
 		"allowJs": true,
 
 		// output
-		"declaration": true,
+		"declaration": true
 		// "declarationMap": true,
 	},
 	"exclude": ["./dist", "./node_modules", "./__tests__", "./coverage", "*.js"]
