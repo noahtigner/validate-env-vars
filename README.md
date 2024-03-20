@@ -31,35 +31,43 @@ npm install validate-env-vars --save-dev
 ```javascript
 #!/usr/bin/env node
 
-import { z } from 'zod';
-import validateEnvVars from 'validate-env-vars';
+import validateEnvVars, {
+	envEnum,
+	envString,
+	envNonEmptyString,
+} from 'validate-env-vars';
 
-const envSchema = z.object({
-	PORT: z.string(),
-	NODE_ENV: z.string(),
-	API_URL: z.string(),
+const envSchema = envObject({
+	NODE_ENV: envEnum(['development', 'production', 'test']),
+	API_BASE: envString().url(),
+	GITHUB_USERNAME: envNonEmptyString(),
 });
 
-validateEnvVars(envSchema);
+validateEnvVars({ schema: envSchema });
 ```
+
+You may use the predefined `env*` functions, or create your own using Zod
 
 ---
 
 ### Programmatically check an .env.production file against a Zod schema:
 
 ```javascript
-import { z } from 'zod';
-import validateEnvVars from 'validate-env-vars';
+import validateEnvVars, {
+    envEnum,
+    envString,
+    envNonEmptyString,
+} from 'validate-env-vars';
 
-const envSchema = z.object({
-    PORT: z.string(),
-    NODE_ENV: z.string(),
-    GITHUB_USERNAME: z.string(),
+const envSchema = envObject({
+	NODE_ENV: envEnum(['development', 'production', 'test']),
+	API_BASE: envString().url(),
+	GITHUB_USERNAME: envNonEmptyString(),
 });
 
 const prefilight() => {
     try {
-        validateEnvVars(envSchema, '.env.production');
+        validateEnvVars({ schema: envSchema, envPath: '.env.production' })
         // ... other code
     }
     catch (error) {
@@ -76,13 +84,16 @@ const prefilight() => {
 1. Define a Zod schema in a .ts file at the root of your project
 
 ```javascript
-import { z } from 'zod';
+import validateEnvVars, {
+    envEnum,
+    envString,
+    envNonEmptyString,
+} from 'validate-env-vars';
 
-// define the schema for the environment variables
-const envSchema = z.object({
-    PATH_PREFIX: z.string(),
-    NODE_ENV: z.enum(['development', 'production', 'test']),
-    API_URL: z.string().url(),
+const envSchema = envObject({
+	NODE_ENV: envEnum(['development', 'production', 'test']),
+	VITE_API_BASE: envString().url(),
+	VITE_GITHUB_USERNAME: envNonEmptyString(),
 });
 
 // make the type of the environment variables available globally
@@ -104,7 +115,7 @@ export default defineConfig({
   plugins: [
     {
       name: 'validate-env-vars',
-      buildStart: () => validateEnvVars(envConfigSchema),
+      buildStart: () => validateEnvVars({ schema: envConfigSchema }),
     },
     // other plugins...
   ],
@@ -124,3 +135,16 @@ interface ImportMeta {
 ```
 
 4. Add your schema configuration file to your tsconfig's `include`
+
+# Tips:
+
+- If you don't have a `.env` file, you can pass an empty file. This is useful for testing and CI/CD environments, where environment variables may be set programmatically.
+
+# Config Options
+
+| Option                   | Type        | Description                                                    | Default |
+| ------------------------ | ----------- | -------------------------------------------------------------- | ------- |
+| `schema`                 | `EnvObject` | The schema to validate against                                 |         |
+| `envPath` (optional)     | `string`    | The path to the .env file                                      | `.env`  |
+| `exitOnError` (optional) | `boolean`   | Whether to exit the process or throw if validation fails       | `false` |
+| `logVars` (optional)     | `boolean`   | Whether to output successfully parsed variables to the console | `true`  |
