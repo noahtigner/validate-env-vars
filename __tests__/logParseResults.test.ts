@@ -25,7 +25,7 @@ describe('logParseResults', () => {
 			},
 		};
 		const logSpy = jest.spyOn(console, 'log').mockImplementation();
-		const errorCount = logParseResults(parseResults, schema);
+		const errorCount = logParseResults(parseResults, schema, true);
 		expect(logSpy).toHaveBeenCalledTimes(2);
 		expect(logSpy).toHaveBeenNthCalledWith(
 			1,
@@ -52,7 +52,7 @@ describe('logParseResults', () => {
 			},
 		};
 		const logSpy = jest.spyOn(console, 'log').mockImplementation();
-		const errorCount = logParseResults(parseResults, schema);
+		const errorCount = logParseResults(parseResults, schema, true);
 		expect(logSpy).toHaveBeenCalledTimes(3);
 		expect(logSpy).toHaveBeenNthCalledWith(
 			1,
@@ -93,7 +93,7 @@ describe('logParseResults', () => {
 		const errorSpy = jest.spyOn(console, 'error').mockImplementation();
 		const logSpy = jest.spyOn(console, 'log').mockImplementation();
 
-		const errorCount = logParseResults(parseResults, schema);
+		const errorCount = logParseResults(parseResults, schema, true);
 
 		expect(errorSpy).toHaveBeenCalledTimes(1);
 		expect(logSpy).toHaveBeenCalledTimes(1);
@@ -138,7 +138,7 @@ describe('logParseResults', () => {
 		const errorSpy = jest.spyOn(console, 'error').mockImplementation();
 		const logSpy = jest.spyOn(console, 'log').mockImplementation();
 
-		const errorCount = logParseResults(parseResults, schema);
+		const errorCount = logParseResults(parseResults, schema, true);
 
 		expect(errorSpy).toHaveBeenCalledTimes(1);
 		expect(logSpy).toHaveBeenCalledTimes(2);
@@ -192,7 +192,7 @@ describe('logParseResults', () => {
 		const errorSpy = jest.spyOn(console, 'error').mockImplementation();
 		const logSpy = jest.spyOn(console, 'log').mockImplementation();
 
-		const errorCount = logParseResults(parseResults, schema);
+		const errorCount = logParseResults(parseResults, schema, true);
 
 		expect(errorSpy).toHaveBeenCalledTimes(2);
 		expect(logSpy).toHaveBeenCalledTimes(1);
@@ -215,5 +215,25 @@ describe('logParseResults', () => {
 
 		// restore process.env
 		process.env = before;
+	});
+	it('skips logging values if logVars is false', () => {
+		const schema = z.object({
+			VAR1: z.string(),
+			VAR2: z.enum(['value1', 'value2']),
+		});
+		const parseResults: ZodSafeParseReturnType = {
+			success: true,
+			data: {
+				VAR1: 'value1',
+				VAR2: 'value2',
+			},
+		};
+		const logSpy = jest.spyOn(console, 'log').mockImplementation();
+		const errorCount = logParseResults(parseResults, schema, false);
+		expect(logSpy).toHaveBeenCalledTimes(2);
+		expect(logSpy).toHaveBeenNthCalledWith(1, `${OK_SYMBOL} VAR1`);
+		expect(logSpy).toHaveBeenNthCalledWith(2, `${OK_SYMBOL} VAR2`);
+		expect(errorCount).toBe(0);
+		logSpy.mockRestore();
 	});
 });

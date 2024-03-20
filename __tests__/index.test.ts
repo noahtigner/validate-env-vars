@@ -29,7 +29,7 @@ describe('validateEnvVars', () => {
 		});
 		const envPath = './__tests__/.env.test';
 
-		validateEnvVars(schema, envPath);
+		validateEnvVars({ schema, envPath });
 
 		expect(process.env.EXPECTED_1).toEqual('one');
 		expect(process.env.EXPECTED_2).toEqual('true');
@@ -41,7 +41,7 @@ describe('validateEnvVars', () => {
 		});
 		const envPath = './__tests__/.env.test';
 
-		validateEnvVars(schema, envPath);
+		validateEnvVars({ schema, envPath });
 
 		expect(process.env.EXPANDED_1).toEqual('one');
 	});
@@ -52,14 +52,14 @@ describe('validateEnvVars', () => {
 		});
 		const envPath = './__tests__/.env.test';
 
-		validateEnvVars(schema, envPath, true);
+		validateEnvVars({ schema, envPath, exitOnError: true });
 
 		expect(processExitSpy).toHaveBeenCalledWith(1);
 	});
 
 	it('defaults to .env if no path is provided', () => {
 		// assert that validateInputFile is called with the default path
-		expect(() => validateEnvVars(z.object({}))).toThrow(
+		expect(() => validateEnvVars({ schema: z.object({}) })).toThrow(
 			`ENOENT: no such file or directory, open '.env'`
 		);
 		expect(validateInputFile).toHaveBeenCalledWith('.env');
@@ -75,7 +75,7 @@ describe('validateEnvVars', () => {
 		// mock validateInputFile to not throw
 		(validateInputFile as jest.Mock).mockReturnValue(true);
 
-		validateEnvVars(schema, envPath, true);
+		validateEnvVars({ schema, envPath, exitOnError: true });
 
 		expect(processExitSpy).toHaveBeenCalledWith(1);
 
@@ -89,7 +89,7 @@ describe('validateEnvVars', () => {
 		});
 		const envPath = 'nonexistent-file';
 
-		validateEnvVars(schema, envPath, true);
+		validateEnvVars({ schema, envPath, exitOnError: true });
 
 		expect(processExitSpy).toHaveBeenCalledWith(1);
 	});
@@ -101,7 +101,7 @@ describe('validateEnvVars', () => {
 		});
 		const envPath = './__tests__/.env.test';
 
-		validateEnvVars(schema, envPath, true);
+		validateEnvVars({ schema, envPath, exitOnError: true });
 
 		expect(processExitSpy).toHaveBeenCalledWith(1);
 		expect(consoleErrorSpy).toHaveBeenCalledTimes(3);
@@ -127,7 +127,7 @@ describe('validateEnvVars', () => {
 		const envPath = './__tests__/.env.test';
 
 		expect(() => {
-			validateEnvVars(schema, envPath, false);
+			validateEnvVars({ schema, envPath, exitOnError: false });
 		}).toThrow('2 missing or invalid environment variables');
 	});
 
@@ -142,7 +142,7 @@ describe('validateEnvVars', () => {
 		const envPath = './__tests__/.env.test';
 
 		expect(() => {
-			validateEnvVars(schema, envPath);
+			validateEnvVars({ schema, envPath });
 		}).not.toThrow();
 	});
 });

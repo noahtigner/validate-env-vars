@@ -18,7 +18,6 @@
 		"newLine": "lf",
 
 		/* Bundler mode */
-		// "allowImportingTsExtensions": true,
 		"resolveJsonModule": true,
 		"isolatedModules": true,
 		// "noEmit": true,
@@ -32,7 +31,7 @@
 
 		// output
 		"declaration": true,
-		"declarationMap": true
+		// "declarationMap": true,
 	},
 	"exclude": ["./dist", "./node_modules", "./__tests__", "./coverage", "*.js"]
 }

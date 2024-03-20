@@ -40,7 +40,12 @@ type ZodEnvTypesAll =
 	| ZodEnvTypesOptional
 	| z.ZodUnion<[ZodEnvTypesOptional, ...ZodEnvTypesOptional[]]>;
 
-const envObject = z.object<Record<string, ZodEnvTypesAll>>;
+type SchemaType<T extends Record<string, ZodEnvTypesAll>> = {
+	[K in keyof T]: T[K];
+};
+
+const envObject = <T extends Record<string, ZodEnvTypesAll>>(obj: T) =>
+	z.object<SchemaType<T>>(obj);
 
 type EnvObject = ReturnType<typeof envObject>;
 
