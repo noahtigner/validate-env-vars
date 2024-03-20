@@ -20,11 +20,13 @@ type FieldResult =
  *
  * @param {SafeParseReturnType} parseResults - The result of a parsing operation.
  * @param {EnvObject} schema - The schema used to parse the input.
+ * @param {boolean} logVars - Whether to output successfully parsed variables to the console.
  * @returns {number} The number of errors logged.
  */
 function logParseResults(
 	parseResults: ZodSafeParseReturnType,
-	schema: EnvObject
+	schema: EnvObject,
+	logVars: boolean
 ): number {
 	// get the keys from the schema
 	const schemaKeys: Record<string, FieldResult> = {};
@@ -62,9 +64,10 @@ function logParseResults(
 	Object.entries(schemaKeys).forEach(([varName, res]) => {
 		// parsing succeeded
 		if (res.error === null && res.data !== '' && res.data !== 'undefined') {
-			console.log(
-				`${OK_SYMBOL} ${varName} ${OK_COLOR}'${res.data}'${RESET_COLOR}`
-			);
+			const varValue = logVars
+				? ` ${OK_COLOR}'${res.data}'${RESET_COLOR}`
+				: '';
+			console.log(`${OK_SYMBOL} ${varName}${varValue}`);
 		}
 		// no data, but parsing did not fail and the variable is optional
 		else if (res.error === null && res.optional) {
