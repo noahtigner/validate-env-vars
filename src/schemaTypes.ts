@@ -3,18 +3,19 @@ import {
 	enum as envEnum,
 	literal as envLiteral,
 	z,
+	RawCreateParams,
 } from 'zod';
 
-const nonEmpty = () =>
-	z.string().min(1, { message: 'Variable cannot be empty' });
+const nonEmpty = (params?: RawCreateParams) =>
+	z.string(params).min(1, { message: 'Variable cannot be empty' });
 
-const envNonEmptyString = () =>
-	nonEmpty().refine((val) => val != 'undefined', {
+const envNonEmptyString = (params?: RawCreateParams) =>
+	nonEmpty(params).refine((val) => val != 'undefined', {
 		message: `Variable cannot equal 'undefined'`,
 	});
 
-const envInteger = () =>
-	nonEmpty().regex(/^-?\d+$/, {
+const envInteger = (params?: RawCreateParams) =>
+	nonEmpty(params).regex(/^-?\d+$/, {
 		message: 'Variable must be a valid integer',
 	});
 

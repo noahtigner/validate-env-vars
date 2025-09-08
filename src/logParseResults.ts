@@ -62,6 +62,11 @@ function logParseResults(
 
 	// loop over each variable and log the result
 	Object.entries(schemaKeys).forEach(([varName, res]) => {
+		// Try to get the description from the Zod option if present
+		let description = '';
+		if (typeof schema.shape[varName]?.description === 'string') {
+			description = `\n\r - ${schema.shape[varName].description}`;
+		}
 		// parsing succeeded
 		if (res.error === null && res.data !== '' && res.data !== 'undefined') {
 			const varValue = logVars
@@ -72,13 +77,13 @@ function logParseResults(
 		// no data, but parsing did not fail and the variable is optional
 		else if (res.error === null && res.optional) {
 			console.log(
-				`${WARN_SYMBOL} ${varName} ${WARN_COLOR}'${res.data}'${RESET_COLOR}`
+				`${WARN_SYMBOL} ${varName} ${WARN_COLOR}'${res.data}'${RESET_COLOR}${description}`
 			);
 		}
 		// parsing failed
 		else {
 			console.error(
-				`${ERR_SYMBOL} ${varName}: ${ERR_COLOR}${res.error}${RESET_COLOR}`
+				`${ERR_SYMBOL} ${varName}: ${ERR_COLOR}${res.error}${RESET_COLOR}${description}`
 			);
 			error_count++;
 		}
