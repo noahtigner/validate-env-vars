@@ -12,9 +12,11 @@ jest.mock('../src/validateInput');
 describe('validateEnvVars', () => {
 	let processExitSpy: jest.SpyInstance;
 	let consoleErrorSpy: jest.SpyInstance;
+	let consoleLogSpy: jest.SpyInstance;
 
 	beforeEach(() => {
 		consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+		consoleLogSpy = jest.spyOn(console, 'log').mockImplementation();
 		processExitSpy = jest.spyOn(process, 'exit').mockImplementation();
 	});
 
@@ -144,5 +146,25 @@ describe('validateEnvVars', () => {
 		expect(() => {
 			validateEnvVars({ schema, envPath });
 		}).not.toThrow();
+	});
+
+	it('descriptions are logged on console warning', () => {
+		const schema = z.object({
+			OPTIONAL_1: z.string({description: 'This is an optional variable'}).optional(),
+			EXPECTED_2: z.string(),
+		});
+		const envPath = './__tests__/.env.test';
+
+		validateEnvVars({ schema, envPath });
+
+		expect(consoleLogSpy).toHaveBeenCalledTimes(3);
+		expect(consoleLogSpy).toHaveBeenNthCalledWith(
+			1,
+			expect.stringContaining("This is an optional variable")
+		);
+		expect(consoleLogSpy).toHaveBeenNthCalledWith(
+			2,
+			expect.not.stringContaining("This is an optional variable")
+		);
 	});
 });
