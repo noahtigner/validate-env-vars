@@ -150,7 +150,9 @@ describe('validateEnvVars', () => {
 
 	it('descriptions are logged on console warning', () => {
 		const schema = z.object({
-			OPTIONAL_1: z.string({description: 'This is an optional variable'}).optional(),
+			OPTIONAL_1: z
+				.string({ description: 'This is an optional variable' })
+				.optional(),
 			EXPECTED_2: z.string(),
 		});
 		const envPath = './__tests__/.env.test';
@@ -160,11 +162,11 @@ describe('validateEnvVars', () => {
 		expect(consoleLogSpy).toHaveBeenCalledTimes(3);
 		expect(consoleLogSpy).toHaveBeenNthCalledWith(
 			1,
-			expect.stringContaining("This is an optional variable")
+			expect.stringContaining('This is an optional variable')
 		);
 		expect(consoleLogSpy).toHaveBeenNthCalledWith(
 			2,
-			expect.not.stringContaining("This is an optional variable")
+			expect.not.stringContaining('This is an optional variable')
 		);
 	});
 });

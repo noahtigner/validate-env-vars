@@ -77,7 +77,7 @@ function logParseResults(
 		// no data, but parsing did not fail and the variable is optional
 		else if (res.error === null && res.optional) {
 			console.log(
- 				`${WARN_SYMBOL} ${varName} ${WARN_COLOR}'${res.data}'${RESET_COLOR}${description}`
+				`${WARN_SYMBOL} ${varName} ${WARN_COLOR}'${res.data}'${RESET_COLOR}${description}`
 			);
 		}
 		// parsing failed

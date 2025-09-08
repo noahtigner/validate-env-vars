@@ -6,15 +6,15 @@ import {
 	RawCreateParams,
 } from 'zod';
 
-const nonEmpty = (params: RawCreateParams) =>
+const nonEmpty = (params?: RawCreateParams) =>
 	z.string(params).min(1, { message: 'Variable cannot be empty' });
 
-const envNonEmptyString = (params: RawCreateParams) =>
+const envNonEmptyString = (params?: RawCreateParams) =>
 	nonEmpty(params).refine((val) => val != 'undefined', {
 		message: `Variable cannot equal 'undefined'`,
 	});
 
-const envInteger = (params: RawCreateParams) =>
+const envInteger = (params?: RawCreateParams) =>
 	nonEmpty(params).regex(/^-?\d+$/, {
 		message: 'Variable must be a valid integer',
 	});
