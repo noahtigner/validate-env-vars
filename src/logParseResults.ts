@@ -64,7 +64,7 @@ function logParseResults(
 	Object.entries(schemaKeys).forEach(([varName, res]) => {
 		// Try to get the description from the Zod option if present
 		let description = '';
-		if (typeof schema.shape[varName]?.description === 'string' && schema.shape[varName].description) {
+		if (typeof schema.shape[varName]?.description === 'string') {
 			description = `\n\r - ${schema.shape[varName].description}`;
 		}
 		// parsing succeeded
