@@ -7,7 +7,9 @@ import {
 } from 'zod';
 
 const nonEmpty = (params?: RawCreateParams) =>
-	z.string(params).min(1, { message: 'Variable cannot be empty' });
+	z.string(params).min(1, {
+        error: 'Variable cannot be empty'
+    });
 
 const envNonEmptyString = (params?: RawCreateParams) =>
 	nonEmpty(params).refine((val) => val != 'undefined', {
