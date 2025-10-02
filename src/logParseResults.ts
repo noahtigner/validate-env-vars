@@ -75,8 +75,8 @@ function logParseResults(
 			metaData = schemaShape.meta();
 		}
 		if (metaData && metaData.description) {
-				description = ` - ${metaData.description}`;
-			}
+			description = ` - ${metaData.description}`;
+		}
 		// parsing succeeded
 		if (res.error === null && res.data !== '' && res.data !== 'undefined') {
 			const varValue = logVars

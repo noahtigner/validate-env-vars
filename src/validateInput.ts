@@ -18,7 +18,7 @@ function validateInputSchema(schema: EnvObject) {
 	Object.values(schema.shape).forEach((field) => {
 		const typeName: Set<string> = field._zod.traits;
 		let containsTypeName = false;
-		typeName.forEach(element => {
+		typeName.forEach((element) => {
 			if (ALLOWED_TYPE_NAMES.includes(element)) {
 				containsTypeName = true;
 			}
