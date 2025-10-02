@@ -64,9 +64,19 @@ function logParseResults(
 	Object.entries(schemaKeys).forEach(([varName, res]) => {
 		// Try to get the description from the Zod option if present
 		let description = '';
-		if (typeof schema.shape[varName]?.description === 'string') {
-			description = `\n\r - ${schema.shape[varName].description}`;
+		const schemaShape = schema.shape[varName];
+		let metaData = { description: '' };
+		// need to unwrap optional types to get to the meta data
+		if (schemaShape.type === 'optional') {
+			// Optional type needs to be unwrapped to access meta
+			const unwrapped = schemaShape.unwrap();
+			metaData = unwrapped.meta();
+		} else {
+			metaData = schemaShape.meta();
 		}
+		if (metaData && metaData.description) {
+				description = ` - ${metaData.description}`;
+			}
 		// parsing succeeded
 		if (res.error === null && res.data !== '' && res.data !== 'undefined') {
 			const varValue = logVars

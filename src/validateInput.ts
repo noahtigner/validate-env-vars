@@ -1,5 +1,5 @@
 import { existsSync } from 'fs';
-import { ZodObject, type ZodStringDef } from 'zod';
+import { ZodObject } from 'zod';
 import { ALLOWED_TYPE_NAMES } from './constants';
 import type { EnvObject } from './schemaTypes';
 
@@ -16,8 +16,14 @@ function validateInputSchema(schema: EnvObject) {
 		);
 	}
 	Object.values(schema.shape).forEach((field) => {
-		const typeName: string = (field._def as ZodStringDef).typeName;
-		if (!ALLOWED_TYPE_NAMES.includes(typeName)) {
+		const typeName: Set<string> = field._zod.traits;
+		let containsTypeName = false;
+		typeName.forEach(element => {
+			if (ALLOWED_TYPE_NAMES.includes(element)) {
+				containsTypeName = true;
+			}
+		});
+		if (!containsTypeName) {
 			throw new Error(
 				`All fields in the schema must be Zod strings, Zod literals, or Zod enums. Received: ${typeName}`
 			);

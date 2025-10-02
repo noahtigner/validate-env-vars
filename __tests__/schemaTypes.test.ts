@@ -150,7 +150,6 @@ describe('envObject', () => {
 	});
 	it('throws a typeError for incorrect property types', () => {
 		envObject({
-			// @ts-expect-error - testing invalid input
 			VAR1: z.boolean(),
 			VAR2: envEnum(['value1', 'value2']),
 		});

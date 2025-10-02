@@ -13,7 +13,6 @@ describe('validateInputSchema', () => {
 			VAR2: z.number(),
 		});
 		expect(() => {
-			// @ts-expect-error - testing invalid input
 			validateInputSchema(schema);
 		}).toThrow();
 	});

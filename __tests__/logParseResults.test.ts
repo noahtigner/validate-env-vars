@@ -82,7 +82,6 @@ describe('logParseResults', () => {
 			success: false,
 			error: {
 				issues: [
-					// @ts-expect-error - shortcut for testing
 					{
 						path: ['VAR1'],
 						message: 'Invalid value',
@@ -127,7 +126,6 @@ describe('logParseResults', () => {
 			success: false,
 			error: {
 				issues: [
-					// @ts-expect-error - shortcut for testing
 					{
 						path: ['VAR2'],
 						message: 'Invalid value',
@@ -176,12 +174,10 @@ describe('logParseResults', () => {
 			success: false,
 			error: {
 				issues: [
-					// @ts-expect-error - shortcut for testing
 					{
 						path: ['VAR2'],
 						message: 'Invalid value',
 					},
-					// @ts-expect-error - shortcut for testing
 					{
 						path: ['VAR3'],
 						message: 'Invalid URL',
