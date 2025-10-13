@@ -3,32 +3,30 @@ import {
 	enum as envEnum,
 	literal as envLiteral,
 	z,
-	RawCreateParams,
+	core,
 } from 'zod';
 
-const nonEmpty = (params?: RawCreateParams) =>
+const nonEmpty = (params?: string | core.$ZodStringParams) =>
 	z.string(params).min(1, {
 		message: 'Variable cannot be empty',
 	});
 
-const envNonEmptyString = (params?: RawCreateParams) =>
-	nonEmpty(params).refine((val) => val != 'undefined', {
+const envNonEmptyString = () =>
+	nonEmpty().refine((val) => val != 'undefined', {
 		message: `Variable cannot equal 'undefined'`,
 	});
 
-const envInteger = (params?: RawCreateParams) =>
+const envInteger = (params?: string | core.$ZodStringParams) =>
 	nonEmpty(params).regex(/^-?\d+$/, {
 		message: 'Variable must be a valid integer',
 	});
 
 type ZodEnvTypes =
 	| z.ZodString
-	| z.ZodEnum<[string, ...string[]]>
+	| z.ZodEnum
 	| z.ZodLiteral<string>
 	| ReturnType<typeof envNonEmptyString>
 	| ReturnType<typeof envInteger>;
-
-type ZodEnvTypesWithEffects = ZodEnvTypes | z.ZodEffects<ZodEnvTypes>;
 
 type ZodEnvTypesWithUnion =
 	| ZodEnvTypes
@@ -38,7 +36,6 @@ type ZodEnvTypesOptional = ZodEnvTypes | z.ZodOptional<ZodEnvTypesWithUnion>;
 
 type ZodEnvTypesAll =
 	| ZodEnvTypes
-	| ZodEnvTypesWithEffects
 	| ZodEnvTypesWithUnion
 	| ZodEnvTypesOptional
 	| z.ZodUnion<[ZodEnvTypesOptional, ...ZodEnvTypesOptional[]]>;
@@ -52,10 +49,7 @@ const envObject = <T extends Record<string, ZodEnvTypesAll>>(obj: T) =>
 
 type EnvObject = ReturnType<typeof envObject>;
 
-type ZodSafeParseReturnType = z.SafeParseReturnType<
-	Record<string, unknown>,
-	Record<string, unknown>
->;
+type ZodSafeParseReturnType = z.ZodSafeParseResult<Record<string, unknown>>;
 
 export {
 	envString,

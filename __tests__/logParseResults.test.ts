@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z, ZodError } from 'zod';
 import logParseResults from '../src/logParseResults';
 import type { ZodSafeParseReturnType } from '../src/schemaTypes';
 import {
@@ -10,6 +10,29 @@ import {
 	WARN_COLOR,
 	WARN_SYMBOL,
 } from '../src/constants';
+
+const returnTypeExtraBits: Omit<ZodError<Record<string, unknown>>, 'issues'> = {
+	flatten: () => ({ formErrors: [], fieldErrors: {} }),
+	format: () => {
+		throw new Error('Function not implemented.');
+	},
+	addIssue: () => {},
+	addIssues: () => {},
+	isEmpty: false,
+	type: {},
+	name: '',
+	message: '',
+	_zod: {
+		output: {},
+		def: [
+			{
+				code: 'custom',
+				path: ['VAR1'],
+				message: 'Invalid value',
+			},
+		],
+	},
+};
 
 describe('logParseResults', () => {
 	it('logs the results of a successful parse', () => {
@@ -81,8 +104,10 @@ describe('logParseResults', () => {
 		const parseResults: ZodSafeParseReturnType = {
 			success: false,
 			error: {
+				...returnTypeExtraBits,
 				issues: [
 					{
+						code: 'custom',
 						path: ['VAR1'],
 						message: 'Invalid value',
 					},
@@ -125,8 +150,10 @@ describe('logParseResults', () => {
 		const parseResults: ZodSafeParseReturnType = {
 			success: false,
 			error: {
+				...returnTypeExtraBits,
 				issues: [
 					{
+						code: 'custom',
 						path: ['VAR2'],
 						message: 'Invalid value',
 					},
@@ -173,12 +200,15 @@ describe('logParseResults', () => {
 		const parseResults: ZodSafeParseReturnType = {
 			success: false,
 			error: {
+				...returnTypeExtraBits,
 				issues: [
 					{
+						code: 'custom',
 						path: ['VAR2'],
 						message: 'Invalid value',
 					},
 					{
+						code: 'custom',
 						path: ['VAR3'],
 						message: 'Invalid URL',
 					},

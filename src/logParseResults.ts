@@ -32,7 +32,7 @@ function logParseResults(
 	const schemaKeys: Record<string, FieldResult> = {};
 	for (const key of Object.keys(schema.shape)) {
 		schemaKeys[key] = {
-			optional: schema.shape[key].isOptional(),
+			optional: schema.shape[key].type === 'optional',
 			error: null,
 			// if any field fails parsing, parseResults.data will be null
 			// pre-populate the data with the value from process.env
@@ -43,7 +43,7 @@ function logParseResults(
 	if (!parseResults.success) {
 		// if parsing failed, update the error message for missing/invalid variables
 		for (const issue of parseResults.error.issues) {
-			const varName = issue.path[0];
+			const varName = issue.path[0] as number | string;
 			const error = issue.message;
 			schemaKeys[varName] = {
 				...schemaKeys[varName],
@@ -65,16 +65,18 @@ function logParseResults(
 		// Try to get the description from the Zod option if present
 		let description = '';
 		const schemaShape = schema.shape[varName];
-		let metaData = { description: '' };
+		let metaData: { description: string } = { description: '' };
 		// need to unwrap optional types to get to the meta data
 		if (schemaShape.type === 'optional') {
 			// Optional type needs to be unwrapped to access meta
 			const unwrapped = schemaShape.unwrap();
-			metaData = unwrapped.meta();
+			const meta = unwrapped.meta();
+			metaData = { description: meta?.description ?? '' };
 		} else {
-			metaData = schemaShape.meta();
+			const meta = schemaShape.meta();
+			metaData = { description: meta?.description ?? '' };
 		}
-		if (metaData && metaData.description) {
+		if (metaData.description) {
 			description = ` - ${metaData.description}`;
 		}
 		// parsing succeeded
