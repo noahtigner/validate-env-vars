@@ -1,7 +1,7 @@
 {
 	"name": "validate-env-vars",
 	"type": "module",
-	"version": "0.5.1",
+	"version": "1.0.0",
 	"description": "A lightweight utility to check the presence and validity of environment variables, as specified by a Zod schema",
 	"main": "dist/index.js",
 	"module": "dist/index.js",
@@ -13,6 +13,7 @@
 		"node": ">=20"
 	},
 	"scripts": {
+		"preinstall": "npx only-allow npm",
 		"test": "jest",
 		"coverage": "make-coverage-badge --output-path ./badges/coverage.svg",
 		"format": "prettier --check .",
@@ -117,11 +118,11 @@
 	"peerDependencies": {
 		"dotenv": "^16.4.0",
 		"dotenv-expand": "^12.0.3",
-		"zod": "^3.22.4"
+		"zod": "^4.1.11"
 	},
 	"dependencies": {
 		"dotenv": "^16.4.0",
 		"dotenv-expand": "^12.0.3",
-		"zod": "^3.22.4"
+		"zod": "^4.1.11"
 	}
 }

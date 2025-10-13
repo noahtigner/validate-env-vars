@@ -109,11 +109,11 @@ describe('validateEnvVars', () => {
 		expect(consoleErrorSpy).toHaveBeenCalledTimes(3);
 		expect(consoleErrorSpy).toHaveBeenNthCalledWith(
 			1,
-			`${ERR_SYMBOL} UNDEF_1: ${ERR_COLOR}Required${RESET_COLOR}`
+			`${ERR_SYMBOL} UNDEF_1: ${ERR_COLOR}Invalid input: expected string, received undefined${RESET_COLOR}`
 		);
 		expect(consoleErrorSpy).toHaveBeenNthCalledWith(
 			2,
-			`${ERR_SYMBOL} UNDEF_2: ${ERR_COLOR}Required${RESET_COLOR}`
+			`${ERR_SYMBOL} UNDEF_2: ${ERR_COLOR}Invalid option: expected one of "value1"|"value2"${RESET_COLOR}`
 		);
 		expect(consoleErrorSpy).toHaveBeenNthCalledWith(
 			3,
@@ -151,7 +151,8 @@ describe('validateEnvVars', () => {
 	it('descriptions are logged on console warning', () => {
 		const schema = z.object({
 			OPTIONAL_1: z
-				.string({ description: 'This is an optional variable' })
+				.string()
+				.meta({ description: 'This is an optional variable' })
 				.optional(),
 			EXPECTED_2: z.string(),
 		});
