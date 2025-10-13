@@ -23,6 +23,7 @@ const envInteger = (params?: string | core.$ZodStringParams) =>
 
 type ZodEnvTypes =
 	| z.ZodString
+	| z.ZodBoolean
 	| z.ZodEnum
 	| z.ZodLiteral<string>
 	| ReturnType<typeof envNonEmptyString>
