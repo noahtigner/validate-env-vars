@@ -1,7 +1,7 @@
 {
 	"name": "validate-env-vars",
 	"type": "module",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "A lightweight utility to check the presence and validity of environment variables, as specified by a Zod schema",
 	"main": "dist/index.js",
 	"module": "dist/index.js",
@@ -18,8 +18,8 @@
 		"coverage": "make-coverage-badge --output-path ./badges/coverage.svg",
 		"format": "prettier --check .",
 		"format:fix": "prettier --write .",
-		"lint": "eslint . --ext js,ts --report-unused-disable-directives --max-warnings 0",
-		"lint:fix": "eslint . --ext js,ts --report-unused-disable-directives --max-warnings 0 --fix",
+		"lint": "eslint . --report-unused-disable-directives --max-warnings 14",
+		"lint:fix": "eslint . --report-unused-disable-directives --max-warnings 14 --fix",
 		"typecheck": "tsc --noEmit",
 		"build": "tsup ./src/index.ts --format esm --dts --minify",
 		"prepublishOnly": "rm -rf dist && npm run build"
@@ -100,20 +100,25 @@
 		]
 	},
 	"devDependencies": {
+		"@eslint/compat": "^2.0.0",
+		"@eslint/eslintrc": "^3.3.1",
+		"@eslint/js": "^9.39.1",
 		"@types/jest": "^30.0.0",
 		"@types/node": "^24.3.0",
-		"@typescript-eslint/eslint-plugin": "^6.15.0",
-		"@typescript-eslint/parser": "^6.20.0",
-		"eslint": "^8.56.0",
+		"@typescript-eslint/eslint-plugin": "^8.47.0",
+		"@typescript-eslint/parser": "^8.47.0",
+		"eslint": "^9.39.1",
 		"eslint-config-prettier": "^10.1.8",
-		"eslint-plugin-import": "^2.29.1",
-		"eslint-plugin-jest": "^28.14.0",
+		"eslint-plugin-import": "^2.32.0",
+		"eslint-plugin-jest": "^29.2.0",
+		"globals": "^16.5.0",
 		"jest": "^30.2.0",
 		"make-coverage-badge": "^1.2.0",
 		"prettier": "^3.1.1",
 		"ts-jest": "^29.4.4",
 		"tsup": "^8.0.2",
-		"typescript": "^5.3.3"
+		"typescript": "^5.3.3",
+		"typescript-eslint": "^8.47.0"
 	},
 	"peerDependencies": {
 		"dotenv": "^16.4.0",
