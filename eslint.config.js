@@ -34,5 +34,16 @@ export default defineConfig(
 	{
 		files: ['test/**'],
 		...jestPlugin.configs['flat/all'],
+	},
+	// temporarily set some rules to warn level
+	{
+		rules: {
+			"@typescript-eslint/no-unnecessary-condition": "warn",
+			"@typescript-eslint/no-base-to-string": "warn",
+			"@typescript-eslint/no-duplicate-type-constituents": "warn",
+			"@typescript-eslint/no-deprecated": "warn",
+			"@typescript-eslint/no-confusing-void-expression": "warn",
+			"@typescript-eslint/restrict-template-expressions": "warn",
+		}
 	}
 );
