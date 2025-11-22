@@ -1,22 +1,26 @@
 import { z } from 'zod';
-import validateEnvVars, {
-	envEnum,
-	envNonEmptyString,
-	envObject,
-} from '../src/index';
+import validateEnvVars from '../src/index';
 import { validateInputFile } from '../src/validateInput';
 import { ERR_COLOR, ERR_SYMBOL, RESET_COLOR } from '../src/constants';
+
+// Helper functions for testing
+const envNonEmptyString = () =>
+	z
+		.string()
+		.min(1, { message: 'Variable cannot be empty' })
+		.refine((val) => val !== 'undefined', {
+			message: "Variable cannot equal 'undefined'",
+		});
 
 jest.mock('../src/validateInput');
 
 describe('validateEnvVars', () => {
 	let processExitSpy: jest.SpyInstance;
 	let consoleErrorSpy: jest.SpyInstance;
-	let consoleLogSpy: jest.SpyInstance;
 
 	beforeEach(() => {
 		consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
-		consoleLogSpy = jest.spyOn(console, 'log').mockImplementation();
+		jest.spyOn(console, 'log').mockImplementation();
 		processExitSpy = jest.spyOn(process, 'exit').mockImplementation();
 	});
 
@@ -61,9 +65,9 @@ describe('validateEnvVars', () => {
 
 	it('defaults to .env if no path is provided', () => {
 		// assert that validateInputFile is called with the default path
-		expect(() => validateEnvVars({ schema: z.object({}) })).toThrow(
-			`ENOENT: no such file or directory, open '.env'`
-		);
+		expect(() => {
+			validateEnvVars({ schema: z.object({}) });
+		}).toThrow(`ENOENT: no such file or directory, open '.env'`);
 		expect(validateInputFile).toHaveBeenCalledWith('.env');
 	});
 
@@ -133,13 +137,11 @@ describe('validateEnvVars', () => {
 		}).toThrow('2 missing or invalid environment variables');
 	});
 
-	it('accepts an envObject', () => {
-		const schema = envObject({
+	it('accepts a z.object', () => {
+		const schema = z.object({
 			EXPECTED_1: envNonEmptyString(),
-			EXPECTED_2: envEnum(['true', 'false']),
-			OPT_UNION: z
-				.union([envNonEmptyString(), envEnum(['true', 'false'])])
-				.optional(),
+			EXPECTED_2: z.enum(['true', 'false']),
+			OPT_OR: z.union([envNonEmptyString(), z.enum(['true', 'false'])]).optional(),
 		});
 		const envPath = './__tests__/.env.test';
 
@@ -148,26 +150,5 @@ describe('validateEnvVars', () => {
 		}).not.toThrow();
 	});
 
-	it('descriptions are logged on console warning', () => {
-		const schema = z.object({
-			OPTIONAL_1: z
-				.string()
-				.meta({ description: 'This is an optional variable' })
-				.optional(),
-			EXPECTED_2: z.string(),
-		});
-		const envPath = './__tests__/.env.test';
 
-		validateEnvVars({ schema, envPath });
-
-		expect(consoleLogSpy).toHaveBeenCalledTimes(3);
-		expect(consoleLogSpy).toHaveBeenNthCalledWith(
-			1,
-			expect.stringContaining('This is an optional variable')
-		);
-		expect(consoleLogSpy).toHaveBeenNthCalledWith(
-			2,
-			expect.not.stringContaining('This is an optional variable')
-		);
-	});
 });

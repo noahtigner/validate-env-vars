@@ -48,8 +48,8 @@ describe('validateInputSchema', () => {
 			VAR1: z.string(),
 			VAR2: z.enum(['value1', 'value2']),
 			VAR3: z.literal('value1'),
-			VAR4: z.union([z.string().url(), z.string()]).optional(),
-			VAR5: z.union([z.string().url(), z.string().optional()]),
+			VAR4: z.union([z.url(), z.string()]).optional(),
+			VAR5: z.union([z.url(), z.string().optional()]),
 		});
 		expect(() => {
 			validateInputSchema(schema);

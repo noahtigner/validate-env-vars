@@ -41,8 +41,9 @@ function validate(options: Required<Omit<Config, 'exitOnError'>>) {
 
 	// throw if parsing failed
 	if (!parsed.success) {
+		const plural = errorCount === 1 ? '' : 's';
 		throw new Error(
-			`${errorCount} missing or invalid environment variable${errorCount === 1 ? '' : 's'}`
+			`${errorCount.toString()} missing or invalid environment variable${plural}`
 		);
 	}
 

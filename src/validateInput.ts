@@ -17,15 +17,12 @@ function validateInputSchema(schema: EnvObject) {
 	}
 	Object.values(schema.shape).forEach((field) => {
 		const typeName: Set<string> = field._zod.traits;
-		let containsTypeName = false;
-		typeName.forEach((element) => {
-			if (ALLOWED_TYPE_NAMES.includes(element)) {
-				containsTypeName = true;
-			}
-		});
+		const containsTypeName = Array.from(typeName).some((element) =>
+			ALLOWED_TYPE_NAMES.includes(element)
+		);
 		if (!containsTypeName) {
 			throw new Error(
-				`All fields in the schema must be Zod strings, Zod literals, or Zod enums. Received: ${typeName}`
+				`All fields in the schema must be Zod strings, Zod literals, or Zod enums. Received: ${Array.from(typeName).join(', ')}`
 			);
 		}
 	});

@@ -1,5 +1,5 @@
 import { z, ZodError } from 'zod';
-import logParseResults from '../src/logParseResults';
+import logParseResults, { isOptional, logMeta, parseMeta } from '../src/logParseResults';
 import type { ZodSafeParseReturnType } from '../src/schemaTypes';
 import {
 	ERR_COLOR,
@@ -79,7 +79,7 @@ describe('logParseResults', () => {
 		expect(logSpy).toHaveBeenCalledTimes(3);
 		expect(logSpy).toHaveBeenNthCalledWith(
 			1,
-			`${WARN_SYMBOL} VAR1 ${WARN_COLOR}'undefined'${RESET_COLOR}`
+			`${WARN_SYMBOL} VAR1 ${WARN_COLOR}''${RESET_COLOR}`
 		);
 		expect(logSpy).toHaveBeenNthCalledWith(
 			2,
@@ -174,7 +174,7 @@ describe('logParseResults', () => {
 		);
 		expect(logSpy).toHaveBeenNthCalledWith(
 			1,
-			`${WARN_SYMBOL} VAR1 ${WARN_COLOR}'undefined'${RESET_COLOR}`
+			`${WARN_SYMBOL} VAR1 ${WARN_COLOR}''${RESET_COLOR}`
 		);
 		expect(logSpy).toHaveBeenNthCalledWith(
 			2,
@@ -195,7 +195,7 @@ describe('logParseResults', () => {
 		const schema = z.object({
 			VAR1: z.string().optional(),
 			VAR2: z.enum(['value1', 'value2']),
-			VAR3: z.string().url().optional(),
+			VAR3: z.url().optional(),
 		});
 		const parseResults: ZodSafeParseReturnType = {
 			success: false,
@@ -233,7 +233,7 @@ describe('logParseResults', () => {
 		);
 		expect(logSpy).toHaveBeenNthCalledWith(
 			1,
-			`${WARN_SYMBOL} VAR1 ${WARN_COLOR}'undefined'${RESET_COLOR}`
+			`${WARN_SYMBOL} VAR1 ${WARN_COLOR}''${RESET_COLOR}`
 		);
 		expect(errorCount).toBe(2);
 		errorSpy.mockRestore();
@@ -261,5 +261,122 @@ describe('logParseResults', () => {
 		expect(logSpy).toHaveBeenNthCalledWith(2, `${OK_SYMBOL} VAR2`);
 		expect(errorCount).toBe(0);
 		logSpy.mockRestore();
+	});
+
+	it('handles errors with empty error messages', () => {
+		const schema = z.object({
+			VAR1: z.string(),
+		});
+		const parseResults: ZodSafeParseReturnType = {
+			success: false,
+			error: {
+				...returnTypeExtraBits,
+				issues: [
+					{
+						code: 'custom',
+						path: ['VAR1'],
+						message: '',
+					},
+				],
+			},
+		};
+		const errorSpy = jest.spyOn(console, 'error').mockImplementation();
+
+		const errorCount = logParseResults(parseResults, schema, true);
+
+		expect(errorSpy).toHaveBeenCalledTimes(1);
+		expect(errorSpy).toHaveBeenNthCalledWith(
+			1,
+			`${ERR_SYMBOL} VAR1: ${ERR_COLOR}${RESET_COLOR}`
+		);
+		expect(errorCount).toBe(1);
+		errorSpy.mockRestore();
+	});
+});
+
+describe('parseMeta', () => {
+	it('returns an empty object if no metadata is present', () => {
+		const field = z.string();
+		const result = parseMeta(field);
+		expect(result).toEqual({});
+	});
+	it('returns an empty object if metadata is invalid', () => {
+		// @ts-expect-error testing invalid metadata
+		const field = z.string().meta({ title: 123 });
+		const result = parseMeta(field);
+		expect(result).toEqual({});
+	});
+	it('returns metadata if valid metadata is present', () => {
+		const metadata = {
+			description: 'A test variable',
+			examples: ['example1', 'example2'],
+		};
+		const field = z.string().meta(metadata);
+		const result = parseMeta(field);
+		expect(result).toEqual(metadata);
+	});
+	it('ignores extra fields in metadata', () => {
+		const metadata = {
+			extraField: 123,
+		};
+		const field = z.string().meta(metadata);
+		const result = parseMeta(field);
+		expect(result).toEqual({});
+	});
+});
+
+describe('logMeta', () => {
+	it('does not log anything if no metadata is present', () => {
+		const field = z.string();
+		const logSpy = jest.spyOn(console, 'log').mockImplementation();
+		logMeta(field);
+		expect(logSpy).not.toHaveBeenCalled();
+		logSpy.mockRestore();
+	});
+	it('logs metadata if present', () => {
+		const metadata = {
+			description: 'A test variable',
+			examples: ['example1', 'example2'],
+		};
+		const field = z.string().meta(metadata);
+		const logSpy = jest.spyOn(console, 'log').mockImplementation();
+
+		logMeta(field);
+
+		expect(logSpy).toHaveBeenCalledTimes(2);
+		expect(logSpy).toHaveBeenNthCalledWith(
+			1,
+			`  - description: A test variable`
+		);
+		expect(logSpy).toHaveBeenNthCalledWith(
+			2,
+			`  - examples: ["example1","example2"]`
+		);
+		logSpy.mockRestore();
+	});
+});
+
+describe('isOptional', () => {
+	it('returns true for optional Zod types', () => {
+		const optionalString = z.string().optional();
+		expect(isOptional(optionalString)).toBe(true);
+	});
+	it('returns false for non-optional Zod types', () => {
+		const regularString = z.string();
+		expect(isOptional(regularString)).toBe(false);
+	});
+	it('returns false for null', () => {
+		expect(isOptional(null)).toBe(false);
+	});
+	it('returns false for non-object types', () => {
+		expect(isOptional('string')).toBe(false);
+		expect(isOptional(123)).toBe(false);
+		expect(isOptional(undefined)).toBe(false);
+		expect(isOptional(true)).toBe(false);
+	});
+	it('returns false for objects without Zod traits', () => {
+		expect(isOptional({})).toBe(false);
+		expect(isOptional({ _zod: {} })).toBe(false);
+		expect(isOptional({ _zod: { traits: null } })).toBe(false);
 	});
 });

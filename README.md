@@ -31,38 +31,30 @@ npm install validate-env-vars --save-dev
 ```javascript
 #!/usr/bin/env node
 
-import validateEnvVars, {
-	envEnum,
-	envString,
-	envNonEmptyString,
-} from 'validate-env-vars';
+import validateEnvVars from 'validate-env-vars';
+import { z } from 'zod';
 
-const envSchema = envObject({
-	NODE_ENV: envEnum(['development', 'production', 'test']),
-	API_BASE: envString().url(),
-	GITHUB_USERNAME: envNonEmptyString(),
+const envSchema = z.object({
+	NODE_ENV: z.enum(['development', 'production', 'test']),
+	API_BASE: z.url(),
+	GITHUB_USERNAME: z.string().min(1),
 });
 
 validateEnvVars({ schema: envSchema });
 ```
-
-You may use the predefined `env*` functions, or create your own using Zod
 
 ---
 
 ### Programmatically check an .env.production file against a Zod schema:
 
 ```javascript
-import validateEnvVars, {
-    envEnum,
-    envString,
-    envNonEmptyString,
-} from 'validate-env-vars';
+import validateEnvVars from 'validate-env-vars';
+import { z } from 'zod';
 
-const envSchema = envObject({
-	NODE_ENV: envEnum(['development', 'production', 'test']),
-	API_BASE: envString().url(),
-	GITHUB_USERNAME: envNonEmptyString(),
+const envSchema = z.object({
+	NODE_ENV: z.enum(['development', 'production', 'test']),
+	API_BASE: z.url(),
+	GITHUB_USERNAME: z.string().min(1),
 });
 
 const prefilight() => {
@@ -84,16 +76,12 @@ const prefilight() => {
 1. Define a Zod schema in a .ts file at the root of your project
 
 ```javascript
-import validateEnvVars, {
-    envEnum,
-    envString,
-    envNonEmptyString,
-} from 'validate-env-vars';
+import { z } from 'zod';
 
-const envSchema = envObject({
-	NODE_ENV: envEnum(['development', 'production', 'test']),
-	VITE_API_BASE: envString().url(),
-	VITE_GITHUB_USERNAME: envNonEmptyString(),
+const envSchema = z.object({
+	NODE_ENV: z.enum(['development', 'production', 'test']),
+	VITE_API_BASE: z.url(),
+	VITE_GITHUB_USERNAME: z.string().min(1),
 });
 
 // make the type of the environment variables available globally
@@ -148,3 +136,32 @@ interface ImportMeta {
 | `envPath` (optional)     | `string`    | The path to the .env file                                      | `.env`  |
 | `exitOnError` (optional) | `boolean`   | Whether to exit the process or throw if validation fails       | `false` |
 | `logVars` (optional)     | `boolean`   | Whether to output successfully parsed variables to the console | `true`  |
+
+# Schema Recipes
+
+Since environment variables are always read as strings, you'll need to validate and transform them appropriately. Here are some common patterns:
+
+```javascript
+const envNonEmptyString = () =>
+	z
+		.string()
+		.min(1, { message: 'Variable cannot be empty' })
+		.refine((val) => val !== 'undefined', {
+			message: "Variable cannot equal 'undefined'",
+		});
+
+// Integer from string
+const envInteger = () =>
+	z.string().regex(/^-?\d+$/, {
+		message: 'Variable must be a valid integer',
+	});
+
+// Boolean from string
+const envBoolean = () => z.enum(['true', 'false'])
+
+// Comma-separated list
+const envList = () =>
+	z.string()
+    .transform((val) => val.split(',')
+    .map(s => s.trim()));
+```
