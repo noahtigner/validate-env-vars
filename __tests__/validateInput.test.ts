@@ -1,8 +1,103 @@
 import { z } from 'zod';
-import { validateInputSchema, validateInputFile } from '../src/validateInput';
+import * as z4 from 'zod/v4/core';
+import {
+	isValidFieldType,
+	validateInputField,
+	validateInputSchema,
+	validateInputFile,
+} from '../src/validateInput';
+
+const expectedFieldValidationTable: [string, z4.$ZodType, boolean][] = [
+	// basic string types
+	['string', z.string(), true],
+	['enum', z.enum(['value1', 'value2']), true],
+	['literal', z.literal('value1'), true],
+	// string types with refinements
+	['string with min', z.string().min(1), true],
+	['string with max', z.string().max(10), true],
+	['email', z.email(), true],
+	['uuid', z.uuid(), true],
+	['url', z.url(), true],
+	['url with protocol', z.url({ protocol: /^https$/ }), true],
+	['iso', z.iso.datetime(), true],
+	['ipv4', z.ipv4(), true],
+	[
+		'custom formats',
+		z.stringFormat('vite-env-var', (val) => val.startsWith('VITE_')),
+		true,
+	],
+	// optional strings
+	['optional string', z.string().optional(), true],
+	['optional enum', z.enum(['value1', 'value2']).optional(), true],
+	['optional literal', z.literal('value1').optional(), true],
+	// unions of strings
+	['union of strings', z.union([z.string(), z.string()]), true],
+	[
+		'union of optional string and url',
+		z.union([z.string().optional(), z.url()]),
+		true,
+	],
+	[
+		'optional union of strings',
+		z.union([z.string(), z.string().optional()]).optional(),
+		true,
+	],
+	// invalid primitive types
+	['number', z.number(), false],
+	['integer', z.int(), false],
+	['boolean', z.boolean(), false],
+	// invalid complex types
+	['object', z.object({}), false],
+	['array', z.array(z.string()), false],
+	['promise', z.promise(z.string()), false],
+	[
+		'string with transform',
+		z.string().transform((val) => val.toUpperCase()),
+		false,
+	],
+	[
+		'string with preprocess',
+		z.preprocess((val) => String(val).trim(), z.string()),
+		false,
+	],
+	['date object', z.date(), false],
+	['stringbool', z.stringbool(), false],
+];
+
+describe('isValidFieldType', () => {
+	expectedFieldValidationTable.forEach(
+		([description, fieldType, expectedResult]) => {
+			it(`correctly ${expectedResult ? 'allows' : 'disallows'} field type ${description}`, () => {
+				const result = isValidFieldType(fieldType);
+				expect(result).toBe(expectedResult);
+			});
+		}
+	);
+});
+
+describe('validateInputField', () => {
+	it(`throws for non-v4 fields`, () => {
+		expect(() => {
+			// @ts-expect-error - testing invalid input
+			validateInputField('NON_V4_FIELD', {});
+		}).toThrow(/must be a ZodType from Zod v4/);
+	});
+	it('throws for invalid field types', () => {
+		const invalidField = z.number();
+		expect(() => {
+			validateInputField('INVALID_FIELD', invalidField);
+		}).toThrow(/has invalid type/);
+	});
+	it('does not throw for valid field types', () => {
+		const validField = z.string();
+		expect(() => {
+			validateInputField('VALID_FIELD', validField);
+		}).not.toThrow();
+	});
+});
 
 describe('validateInputSchema', () => {
-	it('throws if not passed a zodObject', () => {
+	it('throws if not passed a v4 zodObject', () => {
 		expect(() => {
 			// @ts-expect-error - testing invalid input
 			validateInputSchema({});
@@ -13,6 +108,7 @@ describe('validateInputSchema', () => {
 			VAR2: z.number(),
 		});
 		expect(() => {
+			// @ts-expect-error - testing invalid input
 			validateInputSchema(schema);
 		}).toThrow();
 	});

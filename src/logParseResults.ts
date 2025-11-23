@@ -1,6 +1,7 @@
 import {
 	ERR_COLOR,
 	ERR_SYMBOL,
+	HINT_SYMBOL,
 	OK_COLOR,
 	OK_SYMBOL,
 	RESET_COLOR,
@@ -8,57 +9,86 @@ import {
 	WARN_SYMBOL,
 } from './constants';
 import type { EnvObject, ZodSafeParseReturnType } from './schemaTypes';
-import { z, type ZodType } from 'zod';
 
-type FieldResult =
-	| { optional: boolean; error: string; data: null }
-	| { optional: boolean; error: null; data: string };
+// Define the expected metadata structure
+// We don't need a schema here since we're just extracting metadata
+type FieldMeta = {
+	title?: string;
+	description?: string;
+	examples?: string[];
+};
 
-const fieldMetaSchema = z.object({
-	title: z.string().optional(),
-	description: z.string().optional(),
-	examples: z.array(z.string()).optional(),
-});
+type FieldResultBase = {
+	optional: boolean;
+	meta: FieldMeta;
+};
+type FieldResult = FieldResultBase &
+	({ error: string; data: null } | { error: null; data: string });
 
 /**
  * Parses and validates metadata from a Zod field type.
- * 
+ * Note: .meta() method is only available in Zod Classic/Mini, not in core.
+ *
  * @param field - The Zod type to extract metadata from
- * @returns The parsed and validated metadata object if successful, otherwise null
+ * @returns The parsed and validated metadata object if successful, otherwise empty object
  */
-export function parseMeta(field: ZodType): z.infer<typeof fieldMetaSchema> | Record<string, never> {
-	const fieldMeta = field.meta();
-	if (!fieldMeta) return {};
-	const parsed = fieldMetaSchema.safeParse(fieldMeta);
-	if (!parsed.success) return {};
-	return parsed.data;
+export function parseMeta(field: unknown): FieldMeta {
+	// Access meta if available (works with Zod Classic/Mini)
+	const fieldMeta = (field as { meta?: () => unknown }).meta?.();
+	if (!fieldMeta || typeof fieldMeta !== 'object') {
+		return {};
+	}
+
+	// Extract only the fields we care about
+	const meta = fieldMeta as Record<string, unknown>;
+	const result: FieldMeta = {};
+
+	if (typeof meta.title === 'string') {
+		result.title = meta.title;
+	}
+	if (typeof meta.description === 'string') {
+		result.description = meta.description;
+	}
+	if (
+		Array.isArray(meta.examples) &&
+		meta.examples.every((e) => typeof e === 'string')
+	) {
+		result.examples = meta.examples;
+	}
+
+	return result;
 }
 
 /**
  * Logs metadata information for a Zod field to the console.
- * 
- * @param field - The Zod type to extract and log metadata from
+ *
+ * @param meta - The parsed metadata object to log
  */
-export function logMeta(field: ZodType) {
-	const meta = parseMeta(field);
-	Object.entries(meta).forEach(([key, value]) => {
-		const stringifiedValue = typeof value === 'string' ? value : JSON.stringify(value);
-		console.log(`  - ${key}: ${stringifiedValue}`);
+export function logMeta(meta: FieldMeta) {
+	// Only log if there are actual metadata fields
+	const entries = Object.entries(meta);
+	if (entries.length === 0) return;
+
+	entries.forEach(([key, value]) => {
+		const stringifiedValue =
+			typeof value === 'string' ? value : JSON.stringify(value);
+		console.log(`  ${HINT_SYMBOL} ${WARN_COLOR}${key}${RESET_COLOR}: ${stringifiedValue}`);
 	});
 }
 
 /**
  * Checks if a Zod type is optional by examining its internal traits.
- * 
+ *
  * This function inspects the internal `_zod.traits` structure of a Zod type
  * to determine if it has been marked as optional using `z.optional()`.
- * 
+ *
  * @param zodType - The Zod type object to check for optionality
  * @returns `true` if the type is a ZodOptional type, `false` otherwise
  */
 export function isOptional(zodType: unknown): boolean {
 	if (typeof zodType !== 'object' || zodType === null) return false;
-	const traits = (zodType as { _zod?: { traits?: Set<string> } })._zod?.traits;
+	const traits = (zodType as { _zod?: { traits?: Set<string> } })._zod
+		?.traits;
 	return traits instanceof Set && traits.has('ZodOptional');
 }
 
@@ -77,13 +107,15 @@ function logParseResults(
 	schema: EnvObject,
 	logVars: boolean
 ): number {
-	// get the keys from the schema
+	// get the keys from the schema (v4 only - access via _zod.def.shape)
+	const shape = schema._zod.def.shape;
 	const schemaKeys: Record<string, FieldResult> = {};
-	for (const key of Object.keys(schema.shape)) {
-		const fieldSchema = schema.shape[key];
+	for (const key of Object.keys(shape)) {
+		const fieldSchema = shape[key];
 		schemaKeys[key] = {
 			optional: isOptional(fieldSchema),
 			error: null,
+			meta: parseMeta(fieldSchema),
 			// if any field fails parsing, parseResults.data will be null
 			// pre-populate the data with the value from process.env
 			data: process.env[key] || '',
@@ -101,7 +133,7 @@ function logParseResults(
 				error,
 			};
 		}
-	// if parsing succeeded, update the data with the parsed values
+		// if parsing succeeded, update the data with the parsed values
 	} else {
 		for (const key of Object.keys(parseResults.data)) {
 			schemaKeys[key].data = parseResults.data[key] as string;
@@ -124,14 +156,14 @@ function logParseResults(
 			console.log(
 				`${WARN_SYMBOL} ${varName} ${WARN_COLOR}'${res.data}'${RESET_COLOR}`
 			);
-			logMeta(schema.shape[varName] as ZodType);
+			logMeta(res.meta);
 		}
 		// parsing failed
 		else {
 			console.error(
 				`${ERR_SYMBOL} ${varName}: ${ERR_COLOR}${res.error || ''}${RESET_COLOR}`
 			);
-			logMeta(schema.shape[varName] as ZodType);
+			logMeta(res.meta);
 			error_count++;
 		}
 	});

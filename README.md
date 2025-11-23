@@ -157,11 +157,9 @@ const envInteger = () =>
 	});
 
 // Boolean from string
-const envBoolean = () => z.enum(['true', 'false'])
+const envBoolean = () => z.enum(['true', 'false']);
 
 // Comma-separated list
 const envList = () =>
-	z.string()
-    .transform((val) => val.split(',')
-    .map(s => s.trim()));
+	z.string().transform((val) => val.split(',').map((s) => s.trim()));
 ```

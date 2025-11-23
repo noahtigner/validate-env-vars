@@ -1,69 +1,12 @@
-import {
-	// string as envString,
-	// enum as envEnum,
-	// literal as envLiteral,
-	z,
-	// core,
-	// ZodOptional,
-} from 'zod';
+// Import from zod/v4/core to support both Zod 4 Classic and Zod 4 Mini
+import type * as z4 from 'zod/v4/core';
 
-// const nonEmpty = (params?: string | core.$ZodStringParams) =>
-// 	z.string(params).min(1, {
-// 		message: 'Variable cannot be empty',
-// 	});
+// Environment variable schemas must be objects with string-based field types
+// Using $ZodObject from zod/v4/core ensures compatibility with both Classic and Mini
+// type EnvObject = z4.$ZodObject;
+type EnvObject = z4.$ZodObject<{ [k: string]: z4.$ZodType<string | undefined>; }>;
 
-// const envNonEmptyString = () =>
-// 	nonEmpty().refine((val) => val != 'undefined', {
-// 		message: `Variable cannot equal 'undefined'`,
-// 	});
+// Safe parse return type
+type ZodSafeParseReturnType = z4.util.SafeParseResult<Record<string, unknown>>;
 
-// const envInteger = (params?: string | core.$ZodStringParams) =>
-// 	nonEmpty(params).regex(/^-?\d+$/, {
-// 		message: 'Variable must be a valid integer',
-// 	});
-
-// type ZodEnvTypes =
-// 	| z.ZodString
-// 	| z.ZodURL
-// 	| z.ZodBoolean
-// 	| z.ZodEnum
-// 	| z.ZodLiteral<string>
-// 	| ReturnType<typeof envNonEmptyString>
-// 	| ReturnType<typeof envInteger>;
-
-// type ZodEnvTypesWithUnion =
-// 	| ZodEnvTypes
-// 	// | z.ZodUnion<[ZodEnvTypes, ...ZodEnvTypes[]]>
-// 	| z.ZodUnion<readonly [ZodEnvTypes | z.ZodOptional<ZodEnvTypes>, ...ZodEnvTypes[]]>
-	
-// type ZodEnvTypesOptional = ZodEnvTypes | z.ZodOptional<ZodEnvTypesWithUnion>;
-
-// type ZodEnvTypesAll =
-// 	| ZodEnvTypes
-// 	| ZodEnvTypesWithUnion
-// 	| ZodEnvTypesOptional
-// 	| z.ZodUnion<[ZodEnvTypesOptional, ...ZodEnvTypesOptional[]]>;
-
-// type SchemaType<T extends Record<string, ZodEnvTypesAll>> = {
-// 	[K in keyof T]: T[K];
-// };
-
-// const envObject = <T extends Record<string, ZodEnvTypesAll>>(obj: T) =>
-// 	z.object<SchemaType<T>>(obj);
-
-// type EnvObject = ReturnType<typeof envObject>;
-
-type EnvObject = z.ZodObject<z.ZodRawShape>;
-
-type ZodSafeParseReturnType = z.ZodSafeParseResult<Record<string, unknown>>;
-
-export {
-	// envString,
-	// envNonEmptyString,
-	// envInteger,
-	// envEnum,
-	// envLiteral,
-	// envObject,
-	type EnvObject,
-	type ZodSafeParseReturnType,
-};
+export { type EnvObject, type ZodSafeParseReturnType };

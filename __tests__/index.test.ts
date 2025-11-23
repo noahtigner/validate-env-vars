@@ -141,7 +141,9 @@ describe('validateEnvVars', () => {
 		const schema = z.object({
 			EXPECTED_1: envNonEmptyString(),
 			EXPECTED_2: z.enum(['true', 'false']),
-			OPT_OR: z.union([envNonEmptyString(), z.enum(['true', 'false'])]).optional(),
+			OPT_OR: z
+				.union([envNonEmptyString(), z.enum(['true', 'false'])])
+				.optional(),
 		});
 		const envPath = './__tests__/.env.test';
 
@@ -149,6 +151,4 @@ describe('validateEnvVars', () => {
 			validateEnvVars({ schema, envPath });
 		}).not.toThrow();
 	});
-
-
 });

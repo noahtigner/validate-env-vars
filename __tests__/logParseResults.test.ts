@@ -1,5 +1,9 @@
 import { z, ZodError } from 'zod';
-import logParseResults, { isOptional, logMeta, parseMeta } from '../src/logParseResults';
+import logParseResults, {
+	isOptional,
+	logMeta,
+	parseMeta,
+} from '../src/logParseResults';
 import type { ZodSafeParseReturnType } from '../src/schemaTypes';
 import {
 	ERR_COLOR,
@@ -328,8 +332,9 @@ describe('parseMeta', () => {
 describe('logMeta', () => {
 	it('does not log anything if no metadata is present', () => {
 		const field = z.string();
+		const metadata = parseMeta(field);
 		const logSpy = jest.spyOn(console, 'log').mockImplementation();
-		logMeta(field);
+		logMeta(metadata);
 		expect(logSpy).not.toHaveBeenCalled();
 		logSpy.mockRestore();
 	});
@@ -339,9 +344,10 @@ describe('logMeta', () => {
 			examples: ['example1', 'example2'],
 		};
 		const field = z.string().meta(metadata);
+		const parsedMeta = parseMeta(field);
 		const logSpy = jest.spyOn(console, 'log').mockImplementation();
 
-		logMeta(field);
+		logMeta(parsedMeta);
 
 		expect(logSpy).toHaveBeenCalledTimes(2);
 		expect(logSpy).toHaveBeenNthCalledWith(
