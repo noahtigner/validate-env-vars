@@ -5,6 +5,7 @@ import {
 	validateInputField,
 	validateInputSchema,
 	validateInputFile,
+	validate,
 } from '../src/validateInput';
 
 const expectedFieldValidationTable: [string, z4.$ZodType, boolean][] = [
@@ -102,6 +103,15 @@ describe('validateInputSchema', () => {
 			// @ts-expect-error - testing invalid input
 			validateInputSchema({});
 		}).toThrow();
+		const invalidSchema = {
+			_zod: {
+				traits: new Set(['SomethingElse']),
+			},
+		};
+		expect(() => {
+			// @ts-expect-error - testing invalid input
+			validateInputSchema(invalidSchema);
+		}).toThrow(/must be a ZodObject from Zod v4/);
 	});
 	it('throws if passed a zodObject with invalid types', () => {
 		const schema = z.object({
@@ -162,6 +172,48 @@ describe('validateInputFile', () => {
 	it('does not throw if the file exists', () => {
 		expect(() => {
 			validateInputFile('./__tests__/.env.test');
+		}).not.toThrow();
+	});
+});
+
+describe('validate', () => {
+	it('throws an error if parsing fails (single issue)', () => {
+		const schema = z.object({
+			REQUIRED_VAR: z.string(),
+		});
+		const vars = {
+			OPTIONAL_VAR: 'optional_value',
+		};
+
+		expect(() => {
+			validate({ schema, vars, logVars: false });
+		}).toThrow('1 missing or invalid environment variable');
+	});
+	it('throws an error if parsing fails (multiple issues)', () => {
+		const schema = z.object({
+			REQUIRED_1: z.string(),
+			REQUIRED_2: z.string(),
+		});
+		const vars = {
+			OPTIONAL_VAR: 'optional_value',
+		};
+
+		expect(() => {
+			validate({ schema, vars, logVars: false });
+		}).toThrow('2 missing or invalid environment variables');
+	});
+	it('does not throw if all variables are valid', () => {
+		const schema = z.object({
+			REQUIRED_VAR: z.string(),
+			OPTIONAL_VAR: z.string().optional(),
+		});
+		const vars = {
+			REQUIRED_VAR: 'required_value',
+			OPTIONAL_VAR: 'optional_value',
+		};
+
+		expect(() => {
+			validate({ schema, vars, logVars: false });
 		}).not.toThrow();
 	});
 });

@@ -57,7 +57,7 @@ const envSchema = z.object({
 	GITHUB_USERNAME: z.string().min(1),
 });
 
-const prefilight() => {
+const preflight = () => {
     try {
         validateEnvVars({ schema: envSchema, envPath: '.env.production' })
         // ... other code
@@ -132,10 +132,12 @@ interface ImportMeta {
 
 | Option                   | Type        | Description                                                    | Default |
 | ------------------------ | ----------- | -------------------------------------------------------------- | ------- |
-| `schema`                 | `EnvObject` | The schema to validate against                                 |         |
+| `schema`                 | `EnvObject` | The schema to validate against (must use string-based types)   |         |
 | `envPath` (optional)     | `string`    | The path to the .env file                                      | `.env`  |
 | `exitOnError` (optional) | `boolean`   | Whether to exit the process or throw if validation fails       | `false` |
 | `logVars` (optional)     | `boolean`   | Whether to output successfully parsed variables to the console | `true`  |
+
+**Note:** The `schema` must be a `z.object()` with string-based field types only (string, enum, literal, or compositions like union/optional of these types). Environment variables are always read as strings.
 
 # Schema Recipes
 

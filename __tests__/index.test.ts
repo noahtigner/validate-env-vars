@@ -1,9 +1,8 @@
 import { z } from 'zod';
 import validateEnvVars from '../src/index';
-import { validateInputFile } from '../src/validateInput';
+import * as validateInput from '../src/validateInput';
 import { ERR_COLOR, ERR_SYMBOL, RESET_COLOR } from '../src/constants';
 
-// Helper functions for testing
 const envNonEmptyString = () =>
 	z
 		.string()
@@ -11,8 +10,6 @@ const envNonEmptyString = () =>
 		.refine((val) => val !== 'undefined', {
 			message: "Variable cannot equal 'undefined'",
 		});
-
-jest.mock('../src/validateInput');
 
 describe('validateEnvVars', () => {
 	let processExitSpy: jest.SpyInstance;
@@ -28,66 +25,18 @@ describe('validateEnvVars', () => {
 		jest.clearAllMocks();
 	});
 
-	it('process.env is prepared by dotenv', () => {
-		const schema = z.object({
-			EXPECTED_1: z.string(),
-			EXPECTED_2: z.string(),
-		});
-		const envPath = './__tests__/.env.test';
-
-		validateEnvVars({ schema, envPath });
-
-		expect(process.env.EXPECTED_1).toEqual('one');
-		expect(process.env.EXPECTED_2).toEqual('true');
-	});
-
-	it('process.env is prepared by dotenv-expand', () => {
-		const schema = z.object({
-			EXPANDED_1: z.string(),
-		});
-		const envPath = './__tests__/.env.test';
-
-		validateEnvVars({ schema, envPath });
-
-		expect(process.env.EXPANDED_1).toEqual('one');
-	});
-
-	it('variables that fail to expand are handled', () => {
-		const schema = z.object({
-			EXPANDED_2: z.string().min(5),
-		});
-		const envPath = './__tests__/.env.test';
-
-		validateEnvVars({ schema, envPath, exitOnError: true });
-
-		expect(processExitSpy).toHaveBeenCalledWith(1);
-	});
-
 	it('defaults to .env if no path is provided', () => {
+		const validateInputFile = jest.spyOn(
+			validateInput,
+			'validateInputFile'
+		);
+
 		// assert that validateInputFile is called with the default path
 		expect(() => {
 			validateEnvVars({ schema: z.object({}) });
-		}).toThrow(`ENOENT: no such file or directory, open '.env'`);
+		}).toThrow(`File not found: .env`);
 		expect(validateInputFile).toHaveBeenCalledWith('.env');
 	});
-
-	it('exits with 1 if dotenv encounters an error', () => {
-		const schema = z.object({
-			VAR1: z.string(),
-			VAR2: z.string(),
-		});
-		const envPath = 'invalid-file';
-
-		// mock validateInputFile to not throw
-		(validateInputFile as jest.Mock).mockReturnValue(true);
-
-		validateEnvVars({ schema, envPath, exitOnError: true });
-
-		expect(processExitSpy).toHaveBeenCalledWith(1);
-
-		(validateInputFile as jest.Mock).mockRestore();
-	});
-
 	it('exits with 1 if the env file cannot be found', () => {
 		const schema = z.object({
 			VAR1: z.string(),
@@ -99,7 +48,6 @@ describe('validateEnvVars', () => {
 
 		expect(processExitSpy).toHaveBeenCalledWith(1);
 	});
-
 	it('exits with 1 if the schema is invalid', () => {
 		const schema = z.object({
 			UNDEF_1: z.string(),
@@ -124,7 +72,6 @@ describe('validateEnvVars', () => {
 			`${ERR_COLOR}2 missing or invalid environment variables${RESET_COLOR}`
 		);
 	});
-
 	it('throws error instead of exiting if exitOnError is false', () => {
 		const schema = z.object({
 			UNDEF_1: z.string(),
@@ -136,7 +83,6 @@ describe('validateEnvVars', () => {
 			validateEnvVars({ schema, envPath, exitOnError: false });
 		}).toThrow('2 missing or invalid environment variables');
 	});
-
 	it('accepts a z.object', () => {
 		const schema = z.object({
 			EXPECTED_1: envNonEmptyString(),

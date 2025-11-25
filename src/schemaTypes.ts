@@ -3,10 +3,21 @@ import type * as z4 from 'zod/v4/core';
 
 // Environment variable schemas must be objects with string-based field types
 // Using $ZodObject from zod/v4/core ensures compatibility with both Classic and Mini
-// type EnvObject = z4.$ZodObject;
-type EnvObject = z4.$ZodObject<{ [k: string]: z4.$ZodType<string | undefined>; }>;
+export type EnvObject = z4.$ZodObject<{
+	[k: string]: z4.$ZodType<string | undefined>;
+}>;
 
-// Safe parse return type
-type ZodSafeParseReturnType = z4.util.SafeParseResult<Record<string, unknown>>;
+// Safe parse return type from z4.safeParse
+// This matches the return type of z4.safeParse(schema, data) which can be used with
+// schemas from both Zod Classic and Zod Mini
+export type ZodSafeParseReturnType = z4.util.SafeParseResult<
+	Record<string, unknown>
+>;
 
-export { type EnvObject, type ZodSafeParseReturnType };
+// Use generic constraint to preserve schema type information
+export interface Config {
+	schema: EnvObject;
+	envPath?: string;
+	exitOnError?: boolean;
+	logVars?: boolean;
+}

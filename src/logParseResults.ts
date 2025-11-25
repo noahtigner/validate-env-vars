@@ -23,7 +23,7 @@ type FieldResultBase = {
 	meta: FieldMeta;
 };
 type FieldResult = FieldResultBase &
-	({ error: string; data: null } | { error: null; data: string });
+	({ error: string; data: null } | { error: null; data: string | undefined });
 
 /**
  * Parses and validates metadata from a Zod field type.
@@ -72,7 +72,8 @@ export function logMeta(meta: FieldMeta) {
 	entries.forEach(([key, value]) => {
 		const stringifiedValue =
 			typeof value === 'string' ? value : JSON.stringify(value);
-		console.log(`  ${HINT_SYMBOL} ${WARN_COLOR}${key}${RESET_COLOR}: ${stringifiedValue}`);
+		const out = `  ${HINT_SYMBOL} ${WARN_COLOR}${key}${RESET_COLOR}: ${stringifiedValue}`.trimEnd();
+		console.log(out);
 	});
 }
 
@@ -95,34 +96,39 @@ export function isOptional(zodType: unknown): boolean {
 /**
  * Logs the results of a parsing operation.
  *
- * Logs a success message for each variable that was successfully parsed, and an error message for each variable that failed to parse.
+ * Outputs different messages based on the validation result:
+ * - Success (✔): Variable validated successfully with its value
+ * - Warning (⚠): Optional variable is undefined or empty
+ * - Error (✕): Variable failed validation with the error message
  *
- * @param {SafeParseReturnType} parseResults - The result of a parsing operation.
- * @param {EnvObject} schema - The schema used to parse the input.
- * @param {boolean} logVars - Whether to output successfully parsed variables to the console.
- * @returns {number} The number of errors logged.
+ * Also displays metadata (description, examples) when available for optional or failed variables.
+ *
+ * @param parseResults - The result from Zod's safeParse operation
+ * @param schema - The Zod schema used for validation
+ * @param vars - The environment variables object (for displaying values)
+ * @param logVars - Whether to include variable values in the output (false shows only variable names)
+ * @returns The number of validation errors encountered
  */
 function logParseResults(
 	parseResults: ZodSafeParseReturnType,
 	schema: EnvObject,
+	vars: Record<string, string>,
 	logVars: boolean
 ): number {
-	// get the keys from the schema (v4 only - access via _zod.def.shape)
+	// Extract the schema shape to get all field definitions
 	const shape = schema._zod.def.shape;
 	const schemaKeys: Record<string, FieldResult> = {};
-	for (const key of Object.keys(shape)) {
-		const fieldSchema = shape[key];
+	for (const [key, fieldSchema] of Object.entries(shape)) {
 		schemaKeys[key] = {
 			optional: isOptional(fieldSchema),
 			error: null,
 			meta: parseMeta(fieldSchema),
-			// if any field fails parsing, parseResults.data will be null
-			// pre-populate the data with the value from process.env
-			data: process.env[key] || '',
+			// Pre-populate with the raw value from vars (will be replaced if parsing succeeded)
+			data: key in vars ? vars[key] : undefined,
 		};
 	}
 
-	// if parsing failed, update the error message for missing/invalid variables
+	// If parsing failed, populate error messages for each failed field
 	if (!parseResults.success) {
 		for (const issue of parseResults.error.issues) {
 			const varName = issue.path[0] as number | string;
@@ -133,36 +139,42 @@ function logParseResults(
 				error,
 			};
 		}
-		// if parsing succeeded, update the data with the parsed values
+		// If parsing succeeded, update with the validated/transformed values
 	} else {
-		for (const key of Object.keys(parseResults.data)) {
-			schemaKeys[key].data = parseResults.data[key] as string;
+		const { data } = parseResults;
+		for (const [key, val] of Object.entries(data)) {
+			schemaKeys[key].data = val as string;
 		}
 	}
 
 	let error_count = 0;
 
-	// loop over each variable and log the result
+	// Log the result for each schema field
 	Object.entries(schemaKeys).forEach(([varName, res]) => {
-		// parsing succeeded
-		if (res.error === null && res.data !== '' && res.data !== 'undefined') {
+		// Validation succeeded and variable has a non-empty value
+		if (res.error === null && res.data !== undefined && res.data !== '') {
 			const varValue = logVars
 				? ` ${OK_COLOR}'${res.data}'${RESET_COLOR}`
 				: '';
-			console.log(`${OK_SYMBOL} ${varName}${varValue}`);
+			const out = `${OK_SYMBOL} ${varName}${varValue}`.trim();
+			console.log(out);
 		}
-		// no data, but parsing did not fail and the variable is optional
-		else if (res.error === null && res.optional) {
-			console.log(
-				`${WARN_SYMBOL} ${varName} ${WARN_COLOR}'${res.data}'${RESET_COLOR}`
-			);
+		// Variable is undefined or empty, but validation didn't fail (optional field)
+		else if (res.error === null) {
+			const varValue =
+				res.data === undefined ? 'undefined' : `'${res.data}'`;
+			const dataString = logVars
+				? `${WARN_COLOR}${varValue}${RESET_COLOR}`
+				: '';
+			const out = `${WARN_SYMBOL} ${varName} ${dataString}`.trim();
+			console.log(out);
 			logMeta(res.meta);
 		}
-		// parsing failed
+		// Validation failed for this variable
 		else {
-			console.error(
-				`${ERR_SYMBOL} ${varName}: ${ERR_COLOR}${res.error || ''}${RESET_COLOR}`
-			);
+			const out =
+				`${ERR_SYMBOL} ${varName}: ${ERR_COLOR}${res.error || ''}${RESET_COLOR}`.trim();
+			console.error(out);
 			logMeta(res.meta);
 			error_count++;
 		}
