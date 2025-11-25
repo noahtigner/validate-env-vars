@@ -32,25 +32,25 @@ describe('expandValue', () => {
 	describe('basic variable expansion', () => {
 		it('expands ${VAR} syntax', () => {
 			const env = { NAME: 'world' };
-			expect(expandValue('hello ${NAME}', env)).toBe('hello world');
+			expect(expandValue('hello ${NAME}', env, {})).toBe('hello world');
 		});
 
 		it('expands $VAR syntax (unbraced)', () => {
 			const env = { NAME: 'world' };
-			expect(expandValue('hello $NAME', env)).toBe('hello world');
+			expect(expandValue('hello $NAME', env, {})).toBe('hello world');
 		});
 
 		it('returns original value when no variables to expand', () => {
-			expect(expandValue('hello world', {})).toBe('hello world');
+			expect(expandValue('hello world', {}, {})).toBe('hello world');
 		});
 
 		it('replaces undefined variables with empty string', () => {
-			expect(expandValue('${UNDEFINED}', {})).toBe('');
+			expect(expandValue('${UNDEFINED}', {}, {})).toBe('');
 		});
 
 		it('expands multiple variables', () => {
 			const env = { FIRST: 'hello', SECOND: 'world' };
-			expect(expandValue('${FIRST} ${SECOND}', env)).toBe(
+			expect(expandValue('${FIRST} ${SECOND}', env, {})).toBe(
 				'hello world'
 			);
 		});
@@ -58,20 +58,20 @@ describe('expandValue', () => {
 
 	describe('default value syntax', () => {
 		it('uses default value when variable is unset (:-)', () => {
-			expect(expandValue('${VAR:-default}', {})).toBe('default');
+			expect(expandValue('${VAR:-default}', {}, {})).toBe('default');
 		});
 
 		it('uses variable value when set, ignoring default (:-)', () => {
 			const env = { VAR: 'value' };
-			expect(expandValue('${VAR:-default}', env)).toBe('value');
+			expect(expandValue('${VAR:-default}', env, {})).toBe('value');
 		});
 
 		it('uses default value when variable is unset (-)', () => {
-			expect(expandValue('${VAR-default}', {})).toBe('default');
+			expect(expandValue('${VAR-default}', {}, {})).toBe('default');
 		});
 
 		it('handles complex default values with colons', () => {
-			expect(expandValue('${VAR:-http://localhost:3000}', {})).toBe(
+			expect(expandValue('${VAR:-http://localhost:3000}', {}, {})).toBe(
 				'http://localhost:3000'
 			);
 		});
@@ -80,49 +80,49 @@ describe('expandValue', () => {
 	describe('alternate value syntax', () => {
 		it('uses alternate value when variable is set (:+)', () => {
 			const env = { VAR: 'value' };
-			expect(expandValue('${VAR:+alternate}', env)).toBe('alternate');
+			expect(expandValue('${VAR:+alternate}', env, {})).toBe('alternate');
 		});
 
 		it('returns empty string when variable is unset (:+)', () => {
-			expect(expandValue('${VAR:+alternate}', {})).toBe('');
+			expect(expandValue('${VAR:+alternate}', {}, {})).toBe('');
 		});
 
 		it('uses alternate value when variable is set (+)', () => {
 			const env = { VAR: 'value' };
-			expect(expandValue('${VAR+alternate}', env)).toBe('alternate');
+			expect(expandValue('${VAR+alternate}', env, {})).toBe('alternate');
 		});
 	});
 
 	describe('escaped dollar signs', () => {
 		it('does not expand escaped ${} syntax', () => {
 			const env = { VAR: 'value' };
-			expect(expandValue('\\${VAR}', env)).toBe('\\${VAR}');
+			expect(expandValue('\\${VAR}', env, {})).toBe('\\${VAR}');
 		});
 
 		it('does not expand escaped $ syntax', () => {
 			const env = { VAR: 'value' };
-			expect(expandValue('\\$VAR', env)).toBe('\\$VAR');
+			expect(expandValue('\\$VAR', env, {})).toBe('\\$VAR');
 		});
 	});
 
 	describe('progressive expansion', () => {
-		// it('uses runningParsed for values defined earlier in the file', () => {
-		// 	const runningParsed = { FIRST: 'first' };
-		// 	expect(expandValue('${FIRST}', {}, runningParsed)).toBe('first');
-		// });
+		it('uses runningParsed for values defined earlier in the file', () => {
+			const runningParsed = { FIRST: 'first' };
+			expect(expandValue('${FIRST}', {}, runningParsed)).toBe('first');
+		});
 
-		// it('prefers env over runningParsed', () => {
-		// 	const env = { VAR: 'from-env' };
-		// 	const runningParsed = { VAR: 'from-parsed' };
-		// 	expect(expandValue('${VAR}', env, runningParsed)).toBe('from-env');
-		// });
+		it('prefers env over runningParsed', () => {
+			const env = { VAR: 'from-env' };
+			const runningParsed = { VAR: 'from-parsed' };
+			expect(expandValue('${VAR}', env, runningParsed)).toBe('from-env');
+		});
 	});
 
 	describe('self-referential protection', () => {
 		it('prevents infinite loop on self-reference', () => {
 			const env = { VAR: '${VAR}' };
 			// Should not hang, should return the default or empty
-			expect(expandValue('${VAR}', env)).toBe('');
+			expect(expandValue('${VAR}', env, {})).toBe('');
 		});
 	});
 
@@ -130,13 +130,13 @@ describe('expandValue', () => {
 		it('handles empty operator value for simple variables', () => {
 			const env = { VAR: 'value' };
 			// No operator, just a simple variable
-			expect(expandValue('${VAR}', env)).toBe('value');
+			expect(expandValue('${VAR}', env, {})).toBe('value');
 		});
 
 		it('handles variables without operators joining correctly', () => {
 			const env = { PORT: '3000' };
 			// This tests that parts.slice(1).join works correctly when there's no operator
-			expect(expandValue('port: ${PORT}', env)).toBe('port: 3000');
+			expect(expandValue('port: ${PORT}', env, {})).toBe('port: 3000');
 		});
 	});
 });

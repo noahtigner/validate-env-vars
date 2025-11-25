@@ -32,7 +32,6 @@ export function isValidFieldType(field: z4.$ZodType): boolean {
 		// For unions, ensure all options are valid
 		const options = field._zod.def.options;
 		return options.every((option) => isValidFieldType(option));
-		// console.log(field._zod.def.options)
 	}
 	if (fieldType === 'optional' && field instanceof z4.$ZodOptional) {
 		// For optionals, check the inner type
@@ -139,7 +138,6 @@ function filterEnvVarsBySchema(options: Omit<InnerConfig, 'logVars'>) {
  */
 export function validate(options: InnerConfig) {
 	const { schema, vars, logVars } = options;
-	console.log(vars);
 
 	// filter out any env vars not included in the schema
 	const filteredVars = filterEnvVarsBySchema({ schema, vars });

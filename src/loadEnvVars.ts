@@ -13,7 +13,7 @@ type EnvRecordRaw = Record<string, string | undefined>;
  * @example
  * resolveEscapeSequences('\\$VAR') // Returns '$VAR'
  * resolveEscapeSequences('price: \\$100') // Returns 'price: $100'
- * 
+ *
  * Loosely based on dotenv-expand
  * @link https://github.com/motdotla/dotenv-expand
  */
@@ -48,9 +48,11 @@ export function resolveEscapeSequences(value: string): string {
  */
 export function expandValue(
 	value: string,
-	env: EnvRecordRaw
+	env: EnvRecordRaw,
+	runningParsed: EnvRecord
 ): string {
-    const runningParsed = { ...env}
+	// Merge environments: env takes precedence over runningParsed
+	const mergedEnv: EnvRecordRaw = { ...runningParsed, ...env };
 
 	// Match ${VAR} or $VAR, but not escaped \${VAR} or \$VAR
 	const variableRegex =
@@ -80,10 +82,10 @@ export function expandValue(
 
 		if (operator === ':+' || operator === '+') {
 			// Alternate value: use operatorValue if variable is set
-			replacement = runningParsed[key] ? operatorValue : '';
+			replacement = mergedEnv[key] ? operatorValue : '';
 		} else {
 			// Default value (or no operator): use variable value or operatorValue
-			const envValue = runningParsed[key];
+			const envValue = mergedEnv[key];
 
 			if (envValue !== undefined && envValue !== '') {
 				// Variable is set - check for self-reference
@@ -119,12 +121,12 @@ export function expandValue(
  * Processes variables in order, allowing later variables to reference earlier ones
  * (progressive expansion). Also resolves escape sequences after expansion.
  *
- * @param parsed - The parsed environment variables to expand
+ * @param env - The parsed environment variables to expand
  * @returns The expanded environment variables (mutates and returns the input object)
  *
  * @example
  * expand({ A: 'hello', B: '${A} world' }) // { A: 'hello', B: 'hello world' }
- * 
+ *
  * Loosely based on dotenv-expand
  * @link https://github.com/motdotla/dotenv-expand
  */
@@ -141,7 +143,7 @@ export function expand(env: EnvRecordRaw): EnvRecord {
 		}
 
 		// Expand variable references
-		const expandedValue = expandValue(originalValue, runningParsed);
+		const expandedValue = expandValue(originalValue, env, runningParsed);
 
 		// Resolve escape sequences and store
 		const finalValue = resolveEscapeSequences(expandedValue);
@@ -163,10 +165,8 @@ export function expand(env: EnvRecordRaw): EnvRecord {
  * @throws {Error} If the .env file cannot be read or parsed
  */
 export function loadEnvVars(envPath: string | undefined): EnvRecord {
-    if (envPath) {
-        loadEnvFile(envPath);
-    }
-	const expandedEnv = expand(process.env as EnvRecordRaw);
-    console.log('Expanded Env:', expandedEnv);
-    return expandedEnv;
+	if (envPath) {
+		loadEnvFile(envPath);
+	}
+	return expand(process.env as EnvRecordRaw);
 }
