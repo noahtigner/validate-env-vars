@@ -102,8 +102,8 @@ export function validateInputSchema(schema: EnvObject): void {
  * @param path - The path to the input file.
  * @throws {Error} If the file does not exist.
  */
-export function validateInputFile(path: string) {
-	if (!existsSync(path)) {
+export function validateInputFile(path: string | undefined): void {
+	if (path && !existsSync(path)) {
 		throw new Error(`File not found: ${path}`);
 	}
 }
@@ -139,6 +139,7 @@ function filterEnvVarsBySchema(options: Omit<InnerConfig, 'logVars'>) {
  */
 export function validate(options: InnerConfig) {
 	const { schema, vars, logVars } = options;
+	console.log(vars);
 
 	// filter out any env vars not included in the schema
 	const filteredVars = filterEnvVarsBySchema({ schema, vars });

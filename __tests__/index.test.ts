@@ -1,6 +1,5 @@
 import { z } from 'zod';
 import validateEnvVars from '../src/index';
-import * as validateInput from '../src/validateInput';
 import { ERR_COLOR, ERR_SYMBOL, RESET_COLOR } from '../src/constants';
 
 const envNonEmptyString = () =>
@@ -18,25 +17,15 @@ describe('validateEnvVars', () => {
 	beforeEach(() => {
 		consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
 		jest.spyOn(console, 'log').mockImplementation();
-		processExitSpy = jest.spyOn(process, 'exit').mockImplementation();
+		processExitSpy = jest.spyOn(process, 'exit').mockImplementation((() => {
+			throw new Error('process.exit called');
+		}) as any);
 	});
 
 	afterEach(() => {
 		jest.clearAllMocks();
 	});
 
-	it('defaults to .env if no path is provided', () => {
-		const validateInputFile = jest.spyOn(
-			validateInput,
-			'validateInputFile'
-		);
-
-		// assert that validateInputFile is called with the default path
-		expect(() => {
-			validateEnvVars({ schema: z.object({}) });
-		}).toThrow(`File not found: .env`);
-		expect(validateInputFile).toHaveBeenCalledWith('.env');
-	});
 	it('exits with 1 if the env file cannot be found', () => {
 		const schema = z.object({
 			VAR1: z.string(),
@@ -44,7 +33,9 @@ describe('validateEnvVars', () => {
 		});
 		const envPath = 'nonexistent-file';
 
-		validateEnvVars({ schema, envPath, exitOnError: true });
+		expect(() => {
+			validateEnvVars({ schema, envPath, exitOnError: true });
+		}).toThrow('process.exit called');
 
 		expect(processExitSpy).toHaveBeenCalledWith(1);
 	});
@@ -55,7 +46,9 @@ describe('validateEnvVars', () => {
 		});
 		const envPath = './__tests__/.env.test';
 
-		validateEnvVars({ schema, envPath, exitOnError: true });
+		expect(() => {
+			validateEnvVars({ schema, envPath, exitOnError: true });
+		}).toThrow('process.exit called');
 
 		expect(processExitSpy).toHaveBeenCalledWith(1);
 		expect(consoleErrorSpy).toHaveBeenCalledTimes(3);
@@ -85,8 +78,8 @@ describe('validateEnvVars', () => {
 	});
 	it('accepts a z.object', () => {
 		const schema = z.object({
-			EXPECTED_1: envNonEmptyString(),
-			EXPECTED_2: z.enum(['true', 'false']),
+			TEST_EXPECTED_1: envNonEmptyString(),
+			TEST_EXPECTED_2: z.enum(['true', 'false']),
 			OPT_OR: z
 				.union([envNonEmptyString(), z.enum(['true', 'false'])])
 				.optional(),
