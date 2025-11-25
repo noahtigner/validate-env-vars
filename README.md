@@ -58,15 +58,14 @@ const envSchema = z.object({
 });
 
 const preflight = () => {
-    try {
-        validateEnvVars({ schema: envSchema, envPath: '.env.production' })
-        // ... other code
-    }
-    catch (error) {
-        console.error(error);
-        // ... other code
-    }
-}
+	try {
+		validateEnvVars({ schema: envSchema, envPath: '.env.production' });
+		// ... other code
+	} catch (error) {
+		console.error(error);
+		// ... other code
+	}
+};
 ```
 
 ---

@@ -9,6 +9,7 @@ import {
 	WARN_SYMBOL,
 } from './constants';
 import type { EnvObject, ZodSafeParseReturnType } from './schemaTypes';
+import { getSchemaShape, isOptionalField } from './zodVersionHelpers';
 
 // Define the expected metadata structure
 // We don't need a schema here since we're just extracting metadata
@@ -72,25 +73,10 @@ export function logMeta(meta: FieldMeta) {
 	entries.forEach(([key, value]) => {
 		const stringifiedValue =
 			typeof value === 'string' ? value : JSON.stringify(value);
-		const out = `  ${HINT_SYMBOL} ${WARN_COLOR}${key}${RESET_COLOR}: ${stringifiedValue}`.trimEnd();
+		const out =
+			`  ${HINT_SYMBOL} ${WARN_COLOR}${key}${RESET_COLOR}: ${stringifiedValue}`.trimEnd();
 		console.log(out);
 	});
-}
-
-/**
- * Checks if a Zod type is optional by examining its internal traits.
- *
- * This function inspects the internal `_zod.traits` structure of a Zod type
- * to determine if it has been marked as optional using `z.optional()`.
- *
- * @param zodType - The Zod type object to check for optionality
- * @returns `true` if the type is a ZodOptional type, `false` otherwise
- */
-export function isOptional(zodType: unknown): boolean {
-	if (typeof zodType !== 'object' || zodType === null) return false;
-	const traits = (zodType as { _zod?: { traits?: Set<string> } })._zod
-		?.traits;
-	return traits instanceof Set && traits.has('ZodOptional');
 }
 
 /**
@@ -102,6 +88,8 @@ export function isOptional(zodType: unknown): boolean {
  * - Error (✕): Variable failed validation with the error message
  *
  * Also displays metadata (description, examples) when available for optional or failed variables.
+ *
+ * Works with both Zod v3 and v4.
  *
  * @param parseResults - The result from Zod's safeParse operation
  * @param schema - The Zod schema used for validation
@@ -116,11 +104,11 @@ function logParseResults(
 	logVars: boolean
 ): number {
 	// Extract the schema shape to get all field definitions
-	const shape = schema._zod.def.shape;
+	const shape = getSchemaShape(schema);
 	const schemaKeys: Record<string, FieldResult> = {};
 	for (const [key, fieldSchema] of Object.entries(shape)) {
 		schemaKeys[key] = {
-			optional: isOptional(fieldSchema),
+			optional: isOptionalField(fieldSchema),
 			error: null,
 			meta: parseMeta(fieldSchema),
 			// Pre-populate with the raw value from vars (will be replaced if parsing succeeded)

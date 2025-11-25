@@ -1,9 +1,19 @@
 import { existsSync } from 'fs';
-import * as z4 from 'zod/v4/core';
 
 import { OK_COLOR, RESET_COLOR } from './constants';
 import logParseResults from './logParseResults';
 import type { EnvObject, Config } from './schemaTypes';
+import {
+	isZodV4Schema,
+	isZodV3Schema,
+	isZodV4Field,
+	isZodV3Field,
+	getSchemaShape,
+	getFieldType,
+	getInnerType,
+	getUnionOptions,
+	safeParse,
+} from './zodVersionHelpers';
 
 interface InnerConfig
 	extends Required<Omit<Config, 'exitOnError' | 'envPath'>> {
@@ -14,7 +24,7 @@ const ALLOWED_TYPES = new Set(['string', 'enum', 'literal']);
 
 /**
  * Checks if a Zod field type is valid for environment variable validation.
- * 
+ *
  * Environment variables are always strings, so this validates that the field type
  * is string-based (string, enum, literal) or a composition of string-based types
  * (union, optional).
@@ -22,48 +32,43 @@ const ALLOWED_TYPES = new Set(['string', 'enum', 'literal']);
  * @param field - The Zod type to validate
  * @returns `true` if the field type is valid for environment variables, `false` otherwise
  */
-export function isValidFieldType(field: z4.$ZodType): boolean {
-	const fieldType = field._zod.def.type;
+export function isValidFieldType(field: unknown): boolean {
+	const fieldType = getFieldType(field);
 	const isBasicAllowedType = ALLOWED_TYPES.has(fieldType);
 	if (isBasicAllowedType) {
 		return true;
 	}
-	if (fieldType === 'union' && field instanceof z4.$ZodUnion) {
+	if (fieldType === 'union') {
 		// For unions, ensure all options are valid
-		const options = field._zod.def.options;
+		const options = getUnionOptions(field);
 		return options.every((option) => isValidFieldType(option));
-		// console.log(field._zod.def.options)
 	}
-	if (fieldType === 'optional' && field instanceof z4.$ZodOptional) {
+	if (fieldType === 'optional') {
 		// For optionals, check the inner type
-		const innerType = field._zod.def.innerType;
+		const innerType = getInnerType(field);
 		return isValidFieldType(innerType);
 	}
 	return false;
 }
 
 /**
- * Validates that a single schema field is a valid Zod v4 type with string-based validation.
+ * Validates that a single schema field is a valid Zod type with string-based validation.
+ *
+ * Works with both Zod v3 and v4.
  *
  * @param fieldName - The name of the field being validated (for error messages)
  * @param field - The Zod type to validate
- * @throws {Error} If the field is not a Zod v4 type or has an invalid type for environment variables
+ * @throws {Error} If the field is not a Zod type or has an invalid type for environment variables
  */
-export function validateInputField(
-	fieldName: string,
-	field: z4.$ZodType
-): void {
-	const isV4Field =
-		'_zod' in field &&
-		'traits' in field._zod &&
-		field._zod.traits instanceof Set;
-	if (!isV4Field) {
+export function validateInputField(fieldName: string, field: unknown): void {
+	const isValidZodField = isZodV4Field(field) || isZodV3Field(field);
+	if (!isValidZodField) {
 		throw new Error(
-			`The provided field must be a ZodType from Zod v4. Received: ${typeof field}`
+			`The provided field must be a ZodType from Zod v3 or v4. Received: ${typeof field}`
 		);
 	}
 	if (!isValidFieldType(field)) {
-		const fieldType = field._zod.def.type;
+		const fieldType = getFieldType(field);
 		throw new Error(
 			`Field "${fieldName}" has invalid type "${fieldType}". Environment variables must be string-based types (string, enum, literal, etc.)`
 		);
@@ -73,24 +78,21 @@ export function validateInputField(
 /**
  * Validates the type of the Zod schema.
  *
+ * Works with both Zod v3 and v4.
+ *
  * @param {EnvObject} schema - The Zod schema to validate against. Must be a z.object with string-based field types
  * @throws {Error} If the schema is not the right type.
  */
 export function validateInputSchema(schema: EnvObject): void {
-	// Check if it's a ZodObject (v4 Classic or Mini)
-	const isV4Object =
-		'_zod' in schema &&
-		'traits' in schema._zod &&
-		schema._zod.traits instanceof Set &&
-		(schema._zod.traits.has('ZodObject') ||
-			schema._zod.traits.has('ZodMiniObject'));
-	if (!isV4Object) {
+	// Check if it's a valid Zod schema (v3 or v4)
+	const isValidSchema = isZodV4Schema(schema) || isZodV3Schema(schema);
+	if (!isValidSchema) {
 		throw new Error(
-			`The provided schema must be a ZodObject from Zod v4. Received: ${typeof schema}`
+			`The provided schema must be a ZodObject from Zod v3 or v4. Received: ${typeof schema}`
 		);
 	}
 	// Validate that all fields are string-based types
-	const shape = schema._zod.def.shape;
+	const shape = getSchemaShape(schema);
 	Object.entries(shape).forEach(([key, field]) => {
 		validateInputField(key, field);
 	});
@@ -111,6 +113,8 @@ export function validateInputFile(path: string) {
 /**
  * Filters environment variables to only include those defined in the schema.
  *
+ * Works with both Zod v3 and v4.
+ *
  * @param options - Configuration object containing the schema and environment variables
  * @param options.schema - The Zod schema defining expected environment variables
  * @param options.vars - The environment variables object to filter
@@ -118,7 +122,8 @@ export function validateInputFile(path: string) {
  */
 function filterEnvVarsBySchema(options: Omit<InnerConfig, 'logVars'>) {
 	const { schema, vars } = options;
-	const schemaKeys = Object.keys(schema._zod.def.shape);
+	const shape = getSchemaShape(schema);
+	const schemaKeys = Object.keys(shape);
 	const filteredVars = Object.fromEntries(
 		Object.entries(vars).filter(([key]) => schemaKeys.includes(key))
 	);
@@ -127,9 +132,11 @@ function filterEnvVarsBySchema(options: Omit<InnerConfig, 'logVars'>) {
 
 /**
  * Validates environment variables against a Zod schema and logs the results.
- * 
+ *
  * Filters the provided variables to only those defined in the schema, validates them,
  * and logs detailed results for each variable. Throws an error if validation fails.
+ *
+ * Works with both Zod v3 and v4.
  *
  * @param options - The configuration object
  * @param options.schema - The Zod schema defining expected environment variables
@@ -143,8 +150,8 @@ export function validate(options: InnerConfig) {
 	// filter out any env vars not included in the schema
 	const filteredVars = filterEnvVarsBySchema({ schema, vars });
 
-	// validate the environment variables using Zod 4 top-level safeParse
-	const parsed = z4.safeParse(schema, filteredVars);
+	// validate the environment variables using the appropriate version
+	const parsed = safeParse(schema, filteredVars);
 
 	// log the results for each variable & count the errors
 	const errorCount = logParseResults(parsed, schema, vars, logVars);

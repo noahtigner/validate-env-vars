@@ -77,11 +77,10 @@ describe('isValidFieldType', () => {
 });
 
 describe('validateInputField', () => {
-	it(`throws for non-v4 fields`, () => {
+	it(`throws for non-Zod fields`, () => {
 		expect(() => {
-			// @ts-expect-error - testing invalid input
-			validateInputField('NON_V4_FIELD', {});
-		}).toThrow(/must be a ZodType from Zod v4/);
+			validateInputField('NON_ZOD_FIELD', {});
+		}).toThrow(/must be a ZodType from Zod v3 or v4/);
 	});
 	it('throws for invalid field types', () => {
 		const invalidField = z.number();
@@ -98,11 +97,11 @@ describe('validateInputField', () => {
 });
 
 describe('validateInputSchema', () => {
-	it('throws if not passed a v4 zodObject', () => {
+	it('throws if not passed a valid Zod schema', () => {
 		expect(() => {
 			// @ts-expect-error - testing invalid input
 			validateInputSchema({});
-		}).toThrow();
+		}).toThrow(/must be a ZodObject from Zod v3 or v4/);
 		const invalidSchema = {
 			_zod: {
 				traits: new Set(['SomethingElse']),
@@ -111,7 +110,7 @@ describe('validateInputSchema', () => {
 		expect(() => {
 			// @ts-expect-error - testing invalid input
 			validateInputSchema(invalidSchema);
-		}).toThrow(/must be a ZodObject from Zod v4/);
+		}).toThrow(/must be a ZodObject from Zod v3 or v4/);
 	});
 	it('throws if passed a zodObject with invalid types', () => {
 		const schema = z.object({

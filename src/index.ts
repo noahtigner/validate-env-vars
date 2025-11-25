@@ -24,8 +24,8 @@ function validateEnvVars({
 	logVars = true,
 }: Config) {
 	try {
-		validateInputSchema(schema);
 		validateInputFile(envPath);
+		validateInputSchema(schema);
 		const envVars = loadEnvVars(envPath);
 		validate({ schema, vars: envVars, logVars });
 	} catch (err) {

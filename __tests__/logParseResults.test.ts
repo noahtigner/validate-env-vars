@@ -1,9 +1,5 @@
 import { z, ZodError } from 'zod';
-import logParseResults, {
-	isOptional,
-	logMeta,
-	parseMeta,
-} from '../src/logParseResults';
+import logParseResults, { logMeta, parseMeta } from '../src/logParseResults';
 import type { ZodSafeParseReturnType } from '../src/schemaTypes';
 import {
 	ERR_COLOR,
@@ -431,30 +427,5 @@ describe('logMeta', () => {
 			`  ${HINT_SYMBOL} ${WARN_COLOR}examples${RESET_COLOR}: ["example1","example2"]`
 		);
 		logSpy.mockRestore();
-	});
-});
-
-describe('isOptional', () => {
-	it('returns true for optional Zod types', () => {
-		const optionalString = z.string().optional();
-		expect(isOptional(optionalString)).toBe(true);
-	});
-	it('returns false for non-optional Zod types', () => {
-		const regularString = z.string();
-		expect(isOptional(regularString)).toBe(false);
-	});
-	it('returns false for null', () => {
-		expect(isOptional(null)).toBe(false);
-	});
-	it('returns false for non-object types', () => {
-		expect(isOptional('string')).toBe(false);
-		expect(isOptional(123)).toBe(false);
-		expect(isOptional(undefined)).toBe(false);
-		expect(isOptional(true)).toBe(false);
-	});
-	it('returns false for objects without Zod traits', () => {
-		expect(isOptional({})).toBe(false);
-		expect(isOptional({ _zod: {} })).toBe(false);
-		expect(isOptional({ _zod: { traits: null } })).toBe(false);
 	});
 });

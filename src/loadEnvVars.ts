@@ -3,7 +3,7 @@ import { expand } from 'dotenv-expand';
 
 /**
  * Loads and expands environment variables from a .env file.
- * 
+ *
  * Uses dotenv to parse the .env file and dotenv-expand to handle variable expansion.
  * The loaded variables are merged into process.env.
  *
