@@ -13,7 +13,7 @@
 </div>
 
 <p align="center">
-    A lightweight utility to check the presence and validity of environment variables, as specified by a Zod schema
+    A lightweight utility to check the presence and validity of environment variables, as specified by a Zod schema. Zod v4 and Zod Mini are both supported.
 </p>
 
 # Installation
@@ -58,15 +58,14 @@ const envSchema = z.object({
 });
 
 const preflight = () => {
-    try {
-        validateEnvVars({ schema: envSchema, envPath: '.env.production' })
-        // ... other code
-    }
-    catch (error) {
-        console.error(error);
-        // ... other code
-    }
-}
+	try {
+		validateEnvVars({ schema: envSchema, envPath: '.env.production' });
+		// ... other code
+	} catch (error) {
+		console.error(error);
+		// ... other code
+	}
+};
 ```
 
 ---

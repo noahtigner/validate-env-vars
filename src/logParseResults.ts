@@ -10,8 +10,7 @@ import {
 } from './constants';
 import type { EnvObject, ZodSafeParseReturnType } from './schemaTypes';
 
-// Define the expected metadata structure
-// We don't need a schema here since we're just extracting metadata
+// we don't need a schema here since we're just extracting metadata
 type FieldMeta = {
 	title?: string;
 	description?: string;
@@ -27,7 +26,6 @@ type FieldResult = FieldResultBase &
 
 /**
  * Parses and validates metadata from a Zod field type.
- * Note: .meta() method is only available in Zod Classic/Mini, not in core.
  *
  * @param field - The Zod type to extract metadata from
  * @returns The parsed and validated metadata object if successful, otherwise empty object
@@ -72,7 +70,8 @@ export function logMeta(meta: FieldMeta) {
 	entries.forEach(([key, value]) => {
 		const stringifiedValue =
 			typeof value === 'string' ? value : JSON.stringify(value);
-		const out = `  ${HINT_SYMBOL} ${WARN_COLOR}${key}${RESET_COLOR}: ${stringifiedValue}`.trimEnd();
+		const out =
+			`  ${HINT_SYMBOL} ${WARN_COLOR}${key}${RESET_COLOR}: ${stringifiedValue}`.trimEnd();
 		console.log(out);
 	});
 }

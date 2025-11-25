@@ -1,7 +1,7 @@
 {
 	"name": "validate-env-vars",
 	"type": "module",
-	"version": "1.0.1",
+	"version": "2.0.0",
 	"description": "A lightweight utility to check the presence and validity of environment variables, as specified by a Zod schema",
 	"main": "dist/index.js",
 	"module": "dist/index.js",
@@ -18,8 +18,8 @@
 		"coverage": "make-coverage-badge --output-path ./badges/coverage.svg",
 		"format": "prettier --check .",
 		"format:fix": "prettier --write .",
-		"lint": "eslint . --report-unused-disable-directives --max-warnings 14",
-		"lint:fix": "eslint . --report-unused-disable-directives --max-warnings 14 --fix",
+		"lint": "eslint . --report-unused-disable-directives --max-warnings 0",
+		"lint:fix": "eslint . --report-unused-disable-directives --max-warnings 0 --fix",
 		"typecheck": "tsc --noEmit",
 		"build": "tsup ./src/index.ts --format esm --dts --minify",
 		"prepublishOnly": "rm -rf dist && npm run build"

@@ -14,7 +14,7 @@ const ALLOWED_TYPES = new Set(['string', 'enum', 'literal']);
 
 /**
  * Checks if a Zod field type is valid for environment variable validation.
- * 
+ *
  * Environment variables are always strings, so this validates that the field type
  * is string-based (string, enum, literal) or a composition of string-based types
  * (union, optional).
@@ -127,7 +127,7 @@ function filterEnvVarsBySchema(options: Omit<InnerConfig, 'logVars'>) {
 
 /**
  * Validates environment variables against a Zod schema and logs the results.
- * 
+ *
  * Filters the provided variables to only those defined in the schema, validates them,
  * and logs detailed results for each variable. Throws an error if validation fails.
  *
