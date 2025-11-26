@@ -5,7 +5,7 @@
 - Add support for Zod Mini
 - Remove dotenv and dotenv-expand peer dependencies
 - Made the `envPath` parameter optional. If not provided, no file is read, and only `process.env` is validated
-- Improve how field `.meta` is logged (`title`, `description`, and `example` supported)
+- Improve how field `.meta` is logged (`title`, `description`, and `examples` supported)
 - Improve how `schema` is validated and field types are allowed/disallowed
 - Refactor the codebase to improve readability and maintainability
 - Update README with new instructions and examples

@@ -10,7 +10,7 @@
 		"dist"
 	],
 	"engines": {
-		"node": ">=20"
+		"node": ">=20.12.0"
 	},
 	"scripts": {
 		"preinstall": "npx only-allow npm",
@@ -125,6 +125,6 @@
 		"zod": "^4.0.0"
 	},
 	"dependencies": {
-		"zod": "^4.1.11"
+		"zod": "^4.0.0"
 	}
 }

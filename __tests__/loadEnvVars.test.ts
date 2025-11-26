@@ -214,18 +214,13 @@ describe('loadEnvVars', () => {
 		}).toThrow();
 	});
 
-	it('handles undefined envPath by using default .env file', () => {
-		// When envPath is undefined, loadEnvFile uses default './.env'
-		// This will throw if the default .env doesn't exist, which is expected
-		// For this test, we expect it to attempt loading the default file
-		try {
-			loadEnvVars(undefined);
-			// If .env exists, this should succeed
-			expect(true).toBe(true);
-		} catch (error) {
-			// If .env doesn't exist, we expect ENOENT error
-			expect((error as Error).message).toContain('ENOENT');
-		}
+	it('handles undefined envPath by skipping loading .env file', () => {
+		const loadEnvFileSpy = jest.spyOn(process, 'loadEnvFile');
+
+		const result = loadEnvVars(undefined);
+
+		expect(loadEnvFileSpy).not.toHaveBeenCalled();
+		expect(typeof result).toBe('object');
 	});
 
 	it('returns environment variables as a record', () => {
