@@ -136,7 +136,7 @@ interface ImportMeta {
 | `exitOnError` (optional) | `boolean`   | Whether to exit the process or throw if validation fails       | `false` |
 | `logVars` (optional)     | `boolean`   | Whether to output successfully parsed variables to the console | `true`  |
 
-**Note:** The `schema` must be a `z.object()` with string-based field types only (string, enum, literal, or compositions like union/optional of these types). Environment variables are always read as strings.
+**Note:** The `schema` must be a `z.object()` whose fields use string-based types—such as `z.string()`, `z.enum()`, `z.literal()`, or compositions like union/optional of these types. You may also use any Zod string refinements and formats (e.g., `.min()`, `.max()`, `.url()`, `.email()`, `.regex()`, `.refine()`, etc.) to validate and transform string values. Environment variables are always read as strings.
 
 # Schema Recipes
 
