@@ -17,7 +17,7 @@
 </p>
 
 <p align="center">
-   validate-env-vars supports Zod v3, v4, and Zod Mini!
+   validate-env-vars supports Zod v4 and Zod Mini!
 </p>
 
 # Installation
@@ -126,10 +126,6 @@ interface ImportMeta {
 ```
 
 4. Add your schema configuration file to your tsconfig's `include`
-
-# Tips:
-
-- If you don't have a `.env` file, you can pass an empty file. This is useful for testing and CI/CD environments, where environment variables may be set programmatically.
 
 # Config Options
 
