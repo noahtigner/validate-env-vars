@@ -8,42 +8,29 @@ import eslintConfigPrettier from 'eslint-config-prettier/flat';
 export default defineConfig(
 	// extend recommended configs
 	eslint.configs.recommended,
-	tseslint.configs.strictTypeChecked,
 	eslintConfigPrettier,
 	// general ignore patterns
-	{ ignores: ['dist', 'node_modules', 'coverage'] },
-	// specify parser options for TypeScript
+	{ ignores: ['dist', 'node_modules', 'coverage', 'local.{js,ts}'] },
+	// specify parser options for TypeScript source files
 	{
+		files: ['src/**/*.ts'],
 		languageOptions: {
 			parserOptions: {
-				projectService: {
-					allowDefaultProject: ['*.js', '*.ts', '__tests__/*.ts'],
-				},
+				projectService: true,
 			},
 		},
-	},
-	// only apply TypeScript rules to TypeScript files
-	{
-		files: ['**/*.{ts,tsx}'],
 		extends: [
+			tseslint.configs.strictTypeChecked,
 			importPlugin.flatConfigs.recommended,
 			importPlugin.flatConfigs.typescript,
 		],
 	},
-	// only apply jest rules to test files
+	// test files - apply Jest rules & skip lint-based type checking
 	{
-		files: ['test/**'],
-		...jestPlugin.configs['flat/all'],
-	},
-	// temporarily set some rules to warn level
-	{
-		rules: {
-			'@typescript-eslint/no-unnecessary-condition': 'warn',
-			'@typescript-eslint/no-base-to-string': 'warn',
-			'@typescript-eslint/no-duplicate-type-constituents': 'warn',
-			'@typescript-eslint/no-deprecated': 'warn',
-			'@typescript-eslint/no-confusing-void-expression': 'warn',
-			'@typescript-eslint/restrict-template-expressions': 'warn',
-		},
+		files: ['__tests__/**'],
+		extends: [
+			jestPlugin.configs['flat/all'],
+			tseslint.configs.disableTypeChecked,
+		],
 	}
 );
