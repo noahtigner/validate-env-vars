@@ -13,7 +13,11 @@
 </div>
 
 <p align="center">
-    A lightweight utility to check the presence and validity of environment variables, as specified by a Zod schema. Zod v4 and Zod Mini are both supported.
+    A lightweight utility for checking the presence and validity of environment variables, as specified by a Zod schema.
+</p>
+
+<p align="center">
+   validate-env-vars supports Zod v3, v4, and Zod Mini!
 </p>
 
 # Installation
@@ -132,7 +136,7 @@ interface ImportMeta {
 | Option                   | Type        | Description                                                    | Default |
 | ------------------------ | ----------- | -------------------------------------------------------------- | ------- |
 | `schema`                 | `EnvObject` | The schema to validate against (must use string-based types)   |         |
-| `envPath` (optional)     | `string`    | The path to the .env file                                      | `.env`  |
+| `envPath` (optional)     | `string`    | The path to the .env file                                      |         |
 | `exitOnError` (optional) | `boolean`   | Whether to exit the process or throw if validation fails       | `false` |
 | `logVars` (optional)     | `boolean`   | Whether to output successfully parsed variables to the console | `true`  |
 
