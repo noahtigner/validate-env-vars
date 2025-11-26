@@ -1,4 +1,5 @@
 import { loadEnvFile } from 'node:process';
+import { InnerConfig } from './schemaTypes';
 
 type EnvRecord = Record<string, string>;
 type EnvRecordRaw = Record<string, string | undefined>;
@@ -48,12 +49,8 @@ export function resolveEscapeSequences(value: string): string {
  */
 export function expandValue(
 	value: string,
-	env: EnvRecordRaw,
-	runningParsed: EnvRecord
+	runningParsed: EnvRecordRaw
 ): string {
-	// Merge environments: env takes precedence over runningParsed
-	const mergedEnv: EnvRecordRaw = { ...runningParsed, ...env };
-
 	// Match ${VAR} or $VAR, but not escaped \${VAR} or \$VAR
 	const variableRegex =
 		/(?<!\\)\${([^{}]+)}|(?<!\\)\$([A-Za-z_][A-Za-z0-9_]*)/g;
@@ -82,10 +79,10 @@ export function expandValue(
 
 		if (operator === ':+' || operator === '+') {
 			// Alternate value: use operatorValue if variable is set
-			replacement = mergedEnv[key] ? operatorValue : '';
+			replacement = runningParsed[key] ? operatorValue : '';
 		} else {
 			// Default value (or no operator): use variable value or operatorValue
-			const envValue = mergedEnv[key];
+			const envValue = runningParsed[key];
 
 			if (envValue !== undefined && envValue !== '') {
 				// Variable is set - check for self-reference
@@ -134,6 +131,14 @@ export function expand(env: EnvRecordRaw): EnvRecord {
 	// Track already-expanded values for progressive expansion
 	const runningParsed: EnvRecord = {};
 
+	// First pass - prepare runningParsed with defined values
+	for (const [key, originalValue] of Object.entries(env)) {
+		if (originalValue !== undefined) {
+			runningParsed[key] = originalValue;
+		}
+	}
+
+	// Second pass - expand each value
 	for (const key of Object.keys(env)) {
 		const originalValue = env[key];
 
@@ -143,7 +148,7 @@ export function expand(env: EnvRecordRaw): EnvRecord {
 		}
 
 		// Expand variable references
-		const expandedValue = expandValue(originalValue, env, runningParsed);
+		const expandedValue = expandValue(originalValue, runningParsed);
 
 		// Resolve escape sequences and store
 		const finalValue = resolveEscapeSequences(expandedValue);
@@ -154,17 +159,36 @@ export function expand(env: EnvRecordRaw): EnvRecord {
 }
 
 /**
+ * Filters environment variables to only include those defined in the schema.
+ *
+ * @param options - Configuration object containing the schema and environment variables
+ * @param options.schema - The Zod schema defining expected environment variables
+ * @param options.vars - The environment variables object to filter
+ * @returns An object containing only the environment variables that are defined in the schema
+ */
+export function filterEnvVarsBySchema(
+	options: Pick<InnerConfig, 'schema' | 'vars'>
+): EnvRecord {
+	const { schema, vars } = options;
+	const schemaKeys = Object.keys(schema._zod.def.shape);
+	const filteredVars = Object.fromEntries(
+		Object.entries(vars).filter(([key]) => schemaKeys.includes(key))
+	);
+	return filteredVars;
+}
+
+/**
  * Loads and expands environment variables from a .env file.
  *
  * Uses Node's built-in loadEnvFile to parse the .env file
  * and expands variable references like ${VAR}.
- * The loaded variables are merged into process.env.
+ * The loaded variables are then filtered based on the input schema
  *
  * @param envPath - The path to the .env file to load (optional)
  * @returns The environment variables as a key-value object
  * @throws {Error} If the .env file cannot be read or parsed
  */
-export function loadEnvVars(envPath: string | undefined): EnvRecord {
+export function loadEnvVars(envPath?: string): EnvRecord {
 	if (envPath) {
 		loadEnvFile(envPath);
 	}

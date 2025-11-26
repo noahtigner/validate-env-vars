@@ -4,7 +4,6 @@ import {
 	isValidFieldType,
 	validateInputField,
 	validateInputSchema,
-	validateInputFile,
 	validate,
 } from '../src/validateInput';
 
@@ -159,19 +158,6 @@ describe('validateInputSchema', () => {
 		});
 		expect(() => {
 			validateInputSchema(schema);
-		}).not.toThrow();
-	});
-});
-
-describe('validateInputFile', () => {
-	it('throws if the file does not exist', () => {
-		expect(() => {
-			validateInputFile('nonexistent-file');
-		}).toThrow();
-	});
-	it('does not throw if the file exists', () => {
-		expect(() => {
-			validateInputFile('./__tests__/.env.test');
 		}).not.toThrow();
 	});
 });

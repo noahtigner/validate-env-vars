@@ -1,14 +1,8 @@
-import { existsSync } from 'fs';
 import * as z4 from 'zod/v4/core';
 
 import { OK_COLOR, RESET_COLOR } from './constants';
 import logParseResults from './logParseResults';
-import type { EnvObject, Config } from './schemaTypes';
-
-interface InnerConfig
-	extends Required<Omit<Config, 'exitOnError' | 'envPath'>> {
-	vars: Record<string, string>;
-}
+import type { EnvObject, InnerConfig } from './schemaTypes';
 
 const ALLOWED_TYPES = new Set(['string', 'enum', 'literal']);
 
@@ -96,35 +90,6 @@ export function validateInputSchema(schema: EnvObject): void {
 }
 
 /**
- * Validates that the input file exists.
- *
- * @param path - The path to the input file.
- * @throws {Error} If the file does not exist.
- */
-export function validateInputFile(path: string | undefined): void {
-	if (path && !existsSync(path)) {
-		throw new Error(`File not found: ${path}`);
-	}
-}
-
-/**
- * Filters environment variables to only include those defined in the schema.
- *
- * @param options - Configuration object containing the schema and environment variables
- * @param options.schema - The Zod schema defining expected environment variables
- * @param options.vars - The environment variables object to filter
- * @returns An object containing only the environment variables that are defined in the schema
- */
-function filterEnvVarsBySchema(options: Omit<InnerConfig, 'logVars'>) {
-	const { schema, vars } = options;
-	const schemaKeys = Object.keys(schema._zod.def.shape);
-	const filteredVars = Object.fromEntries(
-		Object.entries(vars).filter(([key]) => schemaKeys.includes(key))
-	);
-	return filteredVars;
-}
-
-/**
  * Validates environment variables against a Zod schema and logs the results.
  *
  * Filters the provided variables to only those defined in the schema, validates them,
@@ -140,10 +105,10 @@ export function validate(options: InnerConfig) {
 	const { schema, vars, logVars } = options;
 
 	// filter out any env vars not included in the schema
-	const filteredVars = filterEnvVarsBySchema({ schema, vars });
+	// const filteredVars = filterEnvVarsBySchema({ schema, vars });
 
 	// validate the environment variables using Zod 4 top-level safeParse
-	const parsed = z4.safeParse(schema, filteredVars);
+	const parsed = z4.safeParse(schema, vars);
 
 	// log the results for each variable & count the errors
 	const errorCount = logParseResults(parsed, schema, vars, logVars);

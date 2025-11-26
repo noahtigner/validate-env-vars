@@ -1,6 +1,6 @@
 import { ERR_COLOR, RESET_COLOR } from './constants';
 import { validateInputSchema, validate } from './validateInput';
-import { loadEnvVars } from './loadEnvVars';
+import { filterEnvVarsBySchema, loadEnvVars } from './loadEnvVars';
 import type { Config } from './schemaTypes';
 
 /**
@@ -21,9 +21,12 @@ function validateEnvVars({
 }: Config) {
 	try {
 		validateInputSchema(schema);
-		// validateInputFile(envPath);
-		const envVars = loadEnvVars(envPath);
-		validate({ schema, vars: envVars, logVars });
+		const expandedEnvVars = loadEnvVars(envPath);
+		const filteredEnvVars = filterEnvVarsBySchema({
+			schema,
+			vars: expandedEnvVars,
+		});
+		validate({ schema, vars: filteredEnvVars, logVars });
 	} catch (err) {
 		if (exitOnError) {
 			console.error(
