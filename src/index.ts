@@ -8,7 +8,7 @@ import type { Config } from './schemaTypes';
  *
  * @param {Config} options The configuration object
  * @property {EnvObject} schema The schema to validate against (must be z.object with string-based fields)
- * @property {string} envPath - The path to the .env file. Defaults to `'.env'`
+ * @property {string} envPath - The path to the .env file. If none is provided, no file will be loaded`
  * @property {boolean} exitOnError - Whether to exit the process or throw if validation fails. Defaults to `false`
  * @property {boolean} logVars - Whether to output successfully parsed variables to the console. Defaults to `true`
  * @throws {Error} If a required environment variable is missing or invalid and `exitOnError` is `false`
