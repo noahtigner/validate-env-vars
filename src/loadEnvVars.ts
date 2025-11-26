@@ -58,8 +58,17 @@ export function expandValue(
 	let result = value;
 	let match: RegExpExecArray | null;
 	const seen = new Set<string>(); // Track seen values to prevent infinite loops
+	const maxDepth = 10; // Track depth to prevent infinite loops
+	let depth = 0;
 
 	while ((match = variableRegex.exec(result)) !== null) {
+		// Circular reference detected - throw to prevent infinite loops
+		if (depth++ > maxDepth) {
+			throw new Error(
+				'Possible circular reference detected during environment variable expansion'
+			);
+		}
+
 		// Add current result to seen set to detect self-references
 		seen.add(result);
 
@@ -87,8 +96,10 @@ export function expandValue(
 			if (envValue !== undefined && envValue !== '') {
 				// Variable is set - check for self-reference
 				if (seen.has(envValue)) {
-					// Self-reference detected, use default/empty
-					replacement = operatorValue;
+					// Self-reference detected - throw to prevent infinite loops
+					throw new Error(
+						'Possible self-reference detected during environment variable expansion'
+					);
 				} else {
 					replacement = envValue;
 				}
@@ -100,13 +111,13 @@ export function expandValue(
 
 		result = result.replace(template, replacement);
 
+		// Reset regex to re-evaluate from start after replacement
+		variableRegex.lastIndex = 0;
+
 		// Stop if result matches a known parsed value (optimization)
 		if (result === runningParsed[key]) {
 			break;
 		}
-
-		// Reset regex to re-evaluate from start after replacement
-		variableRegex.lastIndex = 0;
 	}
 
 	return result;

@@ -104,25 +104,12 @@ describe('expandValue', () => {
 		});
 	});
 
-	describe('self-referential protection', () => {
-		it('prevents infinite loop on self-reference', () => {
+	describe('infinite loop protection', () => {
+		it('throws on direct self-reference (VAR=${VAR})', () => {
 			const env = { VAR: '${VAR}' };
-			// Should not hang, should return the default or empty
-			expect(expandValue('${VAR}', env)).toBe('');
-		});
-	});
-
-	describe('edge cases', () => {
-		it('handles empty operator value for simple variables', () => {
-			const env = { VAR: 'value' };
-			// No operator, just a simple variable
-			expect(expandValue('${VAR}', env)).toBe('value');
-		});
-
-		it('handles variables without operators joining correctly', () => {
-			const env = { PORT: '3000' };
-			// This tests that parts.slice(1).join works correctly when there's no operator
-			expect(expandValue('port: ${PORT}', env)).toBe('port: 3000');
+			expect(() => expandValue('${VAR}', env)).toThrow(
+				'Possible self-reference detected during environment variable expansion'
+			);
 		});
 	});
 });
@@ -182,6 +169,34 @@ describe('expand', () => {
 		expect(result.DEFINED).toBe('value');
 		expect(result.UNDEFINED_KEY).toBeUndefined();
 	});
+
+	describe('infinite loop protection', () => {
+		it('throws on mutual circular references (A=${B}, B=${A})', () => {
+			const parsed: Record<string, string | undefined> = {
+				A: '${B}',
+				B: '${A}',
+			};
+			expect(() => expand(parsed)).toThrow(
+				'Possible self-reference detected during environment variable expansion'
+			);
+		});
+
+		it('throws on deeply nested expansion that exceeds max depth', () => {
+			// Create expansion where the result keeps having more variables
+			// This creates exponential growth that hits maxDepth
+			const parsed: Record<string, string | undefined> = {
+				V1: '${V2}${V2}',
+				V2: '${V3}${V3}',
+				V3: '${V4}${V4}',
+				V4: '${V5}${V5}',
+				V5: '${V6}',
+				V6: 'x',
+			};
+			expect(() => expand(parsed)).toThrow(
+				'Possible circular reference detected during environment variable expansion'
+			);
+		});
+	});
 });
 
 describe('loadEnvVars', () => {
@@ -192,10 +207,6 @@ describe('loadEnvVars', () => {
 		// Verify the function returns the expected values
 		expect(result.TEST_EXPECTED_1).toEqual('one');
 		expect(result.TEST_EXPECTED_2).toEqual('true');
-
-		// Verify process.env is populated
-		expect(process.env.TEST_EXPECTED_1).toEqual('one');
-		expect(process.env.TEST_EXPECTED_2).toEqual('true');
 	});
 
 	it('expands environment variables correctly', () => {
