@@ -15,7 +15,7 @@ type EnvRecordRaw = Record<string, string | undefined>;
  * resolveEscapeSequences('\\$VAR') // Returns '$VAR'
  * resolveEscapeSequences('price: \\$100') // Returns 'price: $100'
  *
- * Loosely based on dotenv-expand
+ * Inspired by dotenv-expand
  * @link https://github.com/motdotla/dotenv-expand
  */
 export function resolveEscapeSequences(value: string): string {
@@ -44,7 +44,7 @@ export function resolveEscapeSequences(value: string): string {
  * expandValue('Hello ${NAME}', { NAME: 'World' }, {}) // 'Hello World'
  * expandValue('${PORT:-3000}', {}, {}) // '3000'
  *
- * Loosely based on dotenv-expand
+ * Inspired by dotenv-expand
  * @link https://github.com/motdotla/dotenv-expand
  */
 export function expandValue(
@@ -124,7 +124,7 @@ export function expandValue(
  * @example
  * expand({ A: 'hello', B: '${A} world' }) // { A: 'hello', B: 'hello world' }
  *
- * Loosely based on dotenv-expand
+ * Inspired by dotenv-expand
  * @link https://github.com/motdotla/dotenv-expand
  */
 export function expand(env: EnvRecordRaw): EnvRecord {
