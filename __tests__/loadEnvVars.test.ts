@@ -1,9 +1,169 @@
 import {
+	VARIABLE_REGEX,
+	OPERATOR_REGEX,
 	resolveEscapeSequences,
 	expandValue,
 	expand,
 	loadEnvVars,
 } from '../src/loadEnvVars';
+
+describe('regexes', () => {
+	describe('VARIABLE_REGEX', () => {
+		// Helper to get all matches from a string
+		const getAllMatches = (str: string) => {
+			const regex = new RegExp(VARIABLE_REGEX.source, 'g');
+			const matches: Array<{
+				full: string;
+				braced?: string;
+				unbraced?: string;
+			}> = [];
+			let match;
+			while ((match = regex.exec(str)) !== null) {
+				matches.push({
+					full: match[0],
+					braced: match[1],
+					unbraced: match[2],
+				});
+			}
+			return matches;
+		};
+
+		describe('braced syntax ${VAR}', () => {
+			it('matches simple braced variable', () => {
+				const matches = getAllMatches('${NAME}');
+				expect(matches).toHaveLength(1);
+				expect(matches[0].full).toBe('${NAME}');
+				expect(matches[0].braced).toBe('NAME');
+				expect(matches[0].unbraced).toBeUndefined();
+			});
+
+			it('matches braced variable with operator', () => {
+				const matches = getAllMatches('${VAR:-default}');
+				expect(matches).toHaveLength(1);
+				expect(matches[0].braced).toBe('VAR:-default');
+			});
+
+			it('matches multiple braced variables', () => {
+				const matches = getAllMatches('${A} and ${B}');
+				expect(matches).toHaveLength(2);
+				expect(matches[0].braced).toBe('A');
+				expect(matches[1].braced).toBe('B');
+			});
+		});
+
+		describe('unbraced syntax $VAR', () => {
+			it('matches simple unbraced variable', () => {
+				const matches = getAllMatches('$NAME');
+				expect(matches).toHaveLength(1);
+				expect(matches[0].full).toBe('$NAME');
+				expect(matches[0].braced).toBeUndefined();
+				expect(matches[0].unbraced).toBe('NAME');
+			});
+
+			it('matches variable starting with underscore', () => {
+				const matches = getAllMatches('$_VAR');
+				expect(matches).toHaveLength(1);
+				expect(matches[0].unbraced).toBe('_VAR');
+			});
+
+			it('matches variable with numbers', () => {
+				const matches = getAllMatches('$VAR123');
+				expect(matches).toHaveLength(1);
+				expect(matches[0].unbraced).toBe('VAR123');
+			});
+
+			it('stops at non-identifier characters', () => {
+				const matches = getAllMatches('$VAR.suffix');
+				expect(matches).toHaveLength(1);
+				expect(matches[0].unbraced).toBe('VAR');
+			});
+		});
+
+		describe('escaped dollar signs', () => {
+			it('does not match escaped braced syntax', () => {
+				const matches = getAllMatches('\\${NAME}');
+				expect(matches).toHaveLength(0);
+			});
+
+			it('does not match escaped unbraced syntax', () => {
+				const matches = getAllMatches('\\$NAME');
+				expect(matches).toHaveLength(0);
+			});
+
+			it('matches unescaped after escaped', () => {
+				const matches = getAllMatches('\\$ESCAPED ${UNESCAPED}');
+				expect(matches).toHaveLength(1);
+				expect(matches[0].braced).toBe('UNESCAPED');
+			});
+		});
+
+		describe('edge cases', () => {
+			it('does not match empty braces', () => {
+				const matches = getAllMatches('${}');
+				expect(matches).toHaveLength(0);
+			});
+
+			it('does not match number-only unbraced', () => {
+				const matches = getAllMatches('$123');
+				expect(matches).toHaveLength(0);
+			});
+
+			it('matches in complex strings', () => {
+				const matches = getAllMatches('prefix ${A} middle $B suffix');
+				expect(matches).toHaveLength(2);
+				expect(matches[0].braced).toBe('A');
+				expect(matches[1].unbraced).toBe('B');
+			});
+		});
+	});
+
+	describe('OPERATOR_REGEX', () => {
+		const getOperator = (str: string) => {
+			const match = str.match(OPERATOR_REGEX);
+			return match?.[0] ?? null;
+		};
+
+		describe('colon operators (check empty)', () => {
+			it('matches :- (default if unset or empty)', () => {
+				expect(getOperator('VAR:-default')).toBe(':-');
+			});
+
+			it('matches :+ (alternate if set and non-empty)', () => {
+				expect(getOperator('VAR:+alternate')).toBe(':+');
+			});
+		});
+
+		describe('simple operators (check unset only)', () => {
+			it('matches - (default if unset)', () => {
+				expect(getOperator('VAR-default')).toBe('-');
+			});
+
+			it('matches + (alternate if set)', () => {
+				expect(getOperator('VAR+alternate')).toBe('+');
+			});
+		});
+
+		describe('operator precedence', () => {
+			it('matches :- before - in complex string', () => {
+				expect(getOperator('VAR:-value-with-dashes')).toBe(':-');
+			});
+
+			it('matches :+ before + in complex string', () => {
+				expect(getOperator('VAR:+value+with+plus')).toBe(':+');
+			});
+		});
+
+		describe('no operator', () => {
+			it('returns null for simple variable name', () => {
+				expect(getOperator('VAR')).toBeNull();
+			});
+
+			it('returns null for empty string', () => {
+				expect(getOperator('')).toBeNull();
+			});
+		});
+	});
+});
 
 describe('resolveEscapeSequences', () => {
 	it('converts escaped dollar signs to literal dollar signs', () => {

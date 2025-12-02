@@ -5,6 +5,46 @@ type EnvRecord = Record<string, string>;
 type EnvRecordRaw = Record<string, string | undefined>;
 
 /**
+ * Regex to match environment variable references in a string.
+ *
+ * Matches two syntaxes:
+ * - `${VAR}` - Braced variable reference (captured in group 1)
+ * - `$VAR` - Unbraced variable reference (captured in group 2)
+ *
+ * Uses negative lookbehind `(?<!\\)` to skip escaped dollar signs (`\$`).
+ *
+ * Group 1: Content inside braces `${...}` (e.g., "VAR" or "VAR:-default")
+ * Group 2: Unbraced variable name (e.g., "VAR")
+ *
+ * @example
+ * VARIABLE_REGEX.exec('${NAME}')  // ['${NAME}', 'NAME', undefined]
+ * VARIABLE_REGEX.exec('$NAME')    // ['$NAME', undefined, 'NAME']
+ * VARIABLE_REGEX.exec('\\${NAME}') // null (escaped, not matched)
+ */
+export const VARIABLE_REGEX =
+	/(?<!\\)(?:\${([^{}]+)}|\$([A-Za-z_][A-Za-z0-9_]*))/g;
+
+/**
+ * Regex to match shell-style variable operators.
+ *
+ * Matches the following operators:
+ * - `:+` - Use alternate value if variable is set and non-empty
+ * - `+`  - Use alternate value if variable is set
+ * - `:-` - Use default value if variable is unset or empty
+ * - `-`  - Use default value if variable is unset
+ *
+ * Pattern breakdown: `:?` optionally matches colon, `[+-]` matches + or -.
+ * This ensures :+ and :- are matched as single units before + and -.
+ *
+ * @example
+ * OPERATOR_REGEX.exec('VAR:-default') // [':-']
+ * OPERATOR_REGEX.exec('VAR:+alt')     // [':+']
+ * OPERATOR_REGEX.exec('VAR-default')  // ['-']
+ * OPERATOR_REGEX.exec('VAR')          // null
+ */
+export const OPERATOR_REGEX = /(:?[+-])/;
+
+/**
  * Resolves escape sequences in a string by converting `\$` to `$`.
  * This allows literal dollar signs in environment variable values.
  *
@@ -51,9 +91,8 @@ export function expandValue(
 	value: string,
 	runningParsed: EnvRecordRaw
 ): string {
-	// Match ${VAR} or $VAR, but not escaped \${VAR} or \$VAR
-	const variableRegex =
-		/(?<!\\)\${([^{}]+)}|(?<!\\)\$([A-Za-z_][A-Za-z0-9_]*)/g;
+	// Create a new regex instance for this call (needed for lastIndex reset)
+	const variableRegex = new RegExp(VARIABLE_REGEX.source, 'g');
 
 	let result = value;
 	let match: RegExpExecArray | null;
@@ -76,7 +115,7 @@ export function expandValue(
 		const expression = bracedExpr || unbracedExpr;
 
 		// Parse operators: :+ (alternate if set), + (alternate), :- (default if empty), - (default)
-		const operatorMatch = expression.match(/(:\+|\+|:-|-)/);
+		const operatorMatch = expression.match(OPERATOR_REGEX);
 		const operator = operatorMatch?.[0] ?? null;
 
 		// Split expression by operator to get key and default/alternate value
