@@ -140,7 +140,7 @@ interface ImportMeta {
 
 # Schema Recipes
 
-Since environment variables are always read as strings, you'll need to validate and transform them appropriately. Here are some common patterns:
+Since environment variables are always read as strings, you'll need to validate them appropriately. Here are some common patterns:
 
 ```javascript
 const envNonEmptyString = () =>
@@ -151,16 +151,16 @@ const envNonEmptyString = () =>
 			message: "Variable cannot equal 'undefined'",
 		});
 
-// Integer from string
+// Integer from string (with stringFormat)
 const envInteger = () =>
-	z.string().regex(/^-?\d+$/, {
-		message: 'Variable must be a valid integer',
+	z.stringFormat('int', (val) => z.int().safeParse(Number(val)).success);
+
+// Integer from string (with refine)
+const envIntegerRefine = () =>
+	z.string().refine((val) => Number.isInteger(Number(val)), {
+		message: 'Variable must be an integer',
 	});
 
 // Boolean from string
 const envBoolean = () => z.enum(['true', 'false']);
-
-// Comma-separated list
-const envList = () =>
-	z.string().transform((val) => val.split(',').map((s) => s.trim()));
 ```
