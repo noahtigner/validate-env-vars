@@ -22,7 +22,8 @@ export interface Config {
 	logVars?: boolean;
 }
 
-export interface InnerConfig
-	extends Required<Omit<Config, 'exitOnError' | 'envPath'>> {
+export interface InnerConfig extends Required<
+	Omit<Config, 'exitOnError' | 'envPath'>
+> {
 	vars: Record<string, string>;
 }
