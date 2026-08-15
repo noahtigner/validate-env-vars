@@ -1,6 +1,7 @@
 import { z as zodClassic } from 'zod';
 import * as zodMini from 'zod/mini';
 
+import validateEnvVars from '../src/index';
 import { validate } from '../src/validateInput';
 
 const zodClassicSchema = zodClassic.object({
@@ -39,5 +40,20 @@ describe('Library is compatible with both Zod v4 and Zod Mini', () => {
 				logVars: true,
 			})
 		).toThrow();
+	});
+	it('accepts a Zod Mini schema through the public API', () => {
+		process.env.ZOD_MINI_PUBLIC_API_TEST = 'test';
+
+		try {
+			expect(() =>
+				validateEnvVars({
+					schema: zodMini.object({
+						ZOD_MINI_PUBLIC_API_TEST: zodMini.literal('test'),
+					}),
+				})
+			).not.toThrow();
+		} finally {
+			delete process.env.ZOD_MINI_PUBLIC_API_TEST;
+		}
 	});
 });
