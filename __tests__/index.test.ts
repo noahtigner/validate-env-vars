@@ -13,10 +13,11 @@ const envNonEmptyString = () =>
 describe('validateEnvVars', () => {
 	let processExitSpy: jest.SpyInstance;
 	let consoleErrorSpy: jest.SpyInstance;
+	let consoleLogSpy: jest.SpyInstance;
 
 	beforeEach(() => {
 		consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
-		jest.spyOn(console, 'log').mockImplementation();
+		consoleLogSpy = jest.spyOn(console, 'log').mockImplementation();
 		processExitSpy = jest.spyOn(process, 'exit').mockImplementation((() => {
 			throw new Error('process.exit called');
 		}) as any);
@@ -89,5 +90,34 @@ describe('validateEnvVars', () => {
 		expect(() => {
 			validateEnvVars({ schema, envPath });
 		}).not.toThrow();
+	});
+	it('does not log environment variable values by default', () => {
+		const schema = z.object({
+			TEST_EXPECTED_1: z.string(),
+		});
+
+		validateEnvVars({ schema, envPath: './__tests__/.env.test' });
+
+		expect(consoleLogSpy).toHaveBeenCalledWith(
+			expect.stringContaining('TEST_EXPECTED_1')
+		);
+		expect(consoleLogSpy).not.toHaveBeenCalledWith(
+			expect.stringContaining("'one'")
+		);
+	});
+	it('logs environment variable values when explicitly enabled', () => {
+		const schema = z.object({
+			TEST_EXPECTED_1: z.string(),
+		});
+
+		validateEnvVars({
+			schema,
+			envPath: './__tests__/.env.test',
+			logVars: true,
+		});
+
+		expect(consoleLogSpy).toHaveBeenCalledWith(
+			expect.stringContaining("'one'")
+		);
 	});
 });
