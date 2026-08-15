@@ -22,10 +22,30 @@
 
 # Installation
 
+Requires Node.js 20.12.0 or later and Zod v4. The package has no install-time scripts and supports npm, pnpm, Yarn, and Bun.
+
 Using npm:
 
 ```bash
-npm install validate-env-vars --save-dev
+npm install --save-dev validate-env-vars zod
+```
+
+Using pnpm:
+
+```bash
+pnpm add --save-dev validate-env-vars zod
+```
+
+Using Yarn:
+
+```bash
+yarn add --dev validate-env-vars zod
+```
+
+Using Bun:
+
+```bash
+bun add --dev validate-env-vars zod
 ```
 
 # Usage Examples
@@ -44,7 +64,7 @@ const envSchema = z.object({
 	GITHUB_USERNAME: z.string().min(1),
 });
 
-validateEnvVars({ schema: envSchema });
+validateEnvVars({ schema: envSchema, envPath: '.env' });
 ```
 
 ---
@@ -74,7 +94,7 @@ const preflight = () => {
 
 ---
 
-### Check env vars before Vite startup and build:
+### Check env vars before Vite startup and build
 
 1. Define a Zod schema in a .ts file at the root of your project
 
@@ -98,19 +118,20 @@ export default envSchema;
 2. Import `validateEnvVars` and your schema and add a plugin to your Vite config to call `validateEnvVars` on `buildStart`
 
 ```javascript
-import { defineConfig } from 'vitest/config';
+import { defineConfig } from 'vite';
 import envConfigSchema from './env.config';
 import validateEnvVars from 'validate-env-vars';
 
 export default defineConfig({
-  plugins: [
-    {
-      name: 'validate-env-vars',
-      buildStart: () => validateEnvVars({ schema: envConfigSchema }),
-    },
-    // other plugins...
-  ],
-  // other options...
+	plugins: [
+		{
+			name: 'validate-env-vars',
+			buildStart: () => validateEnvVars({ schema: envConfigSchema }),
+		},
+		// other plugins...
+	],
+	// other options...
+});
 ```
 
 3. Enable typehints and intellisense for the environment variables in your `vite-env.d.ts`
@@ -129,14 +150,18 @@ interface ImportMeta {
 
 # Config Options
 
-| Option                   | Type        | Description                                                    | Default |
-| ------------------------ | ----------- | -------------------------------------------------------------- | ------- |
-| `schema`                 | `EnvObject` | The schema to validate against (must use string-based types)   |         |
-| `envPath` (optional)     | `string`    | The path to the .env file                                      |         |
-| `exitOnError` (optional) | `boolean`   | Whether to exit the process or throw if validation fails       | `false` |
-| `logVars` (optional)     | `boolean`   | Whether to output successfully parsed variables to the console | `true`  |
+| Option                   | Type        | Description                                                                              | Default |
+| ------------------------ | ----------- | ---------------------------------------------------------------------------------------- | ------- |
+| `schema`                 | `EnvObject` | The schema to validate against (must use string-based types)                             |         |
+| `envPath` (optional)     | `string`    | The path to load with Node's `process.loadEnvFile()` before validation                   |         |
+| `exitOnError` (optional) | `boolean`   | Whether to exit the process or throw if validation fails                                 | `false` |
+| `logVars` (optional)     | `boolean`   | Whether to output successfully parsed values. Do not enable this where logs are retained | `false` |
 
-**Note:** The `schema` must be a `z.object()` whose fields use string-based types—such as `z.string()`, `z.enum()`, `z.literal()`, or compositions like union/optional of these types. You may also use any Zod string refinements and formats (e.g., `.min()`, `.max()`, `.url()`, `.email()`, `.regex()`, `.refine()`, etc.) to validate and transform string values. Environment variables are always read as strings.
+`envPath` loads variables into `process.env`, as Node's `process.loadEnvFile()` does. Call the validator during application bootstrap if you use this option.
+
+**Security:** `logVars` defaults to `false`, so successful values are not printed. Leave it disabled for secrets, CI logs, shared terminals, and production. Set `logVars: true` only when it is safe to expose the values.
+
+**Schema support:** `schema` must be a `z.object()` whose fields use string-based types, such as `z.string()`, `z.enum()`, `z.literal()`, or unions and optionals composed from those types. String refinements and formats such as `.min()`, `.max()`, `.url()`, `.email()`, `.regex()`, and `.refine()` are supported. Pipelines, transforms, preprocessors, and non-string types are rejected. Environment variables are always read as strings.
 
 # Schema Recipes
 
