@@ -242,5 +242,5 @@ export function loadEnvVars(envPath?: string): EnvRecord {
 	if (envPath) {
 		loadEnvFile(envPath);
 	}
-	return expand(process.env as EnvRecordRaw);
+	return expand(process.env);
 }

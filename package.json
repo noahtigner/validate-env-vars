@@ -1,7 +1,7 @@
 {
 	"name": "validate-env-vars",
 	"type": "module",
-	"version": "2.0.0",
+	"version": "2.0.1",
 	"description": "A lightweight utility to check the presence and validity of environment variables, as specified by a Zod schema",
 	"main": "dist/index.js",
 	"module": "dist/index.js",
@@ -105,7 +105,7 @@
 		"@eslint/eslintrc": "^3.3.1",
 		"@eslint/js": "^9.39.1",
 		"@types/jest": "^30.0.0",
-		"@types/node": "^25.0.1",
+		"@types/node": "^25.9.5",
 		"@typescript-eslint/eslint-plugin": "^8.47.0",
 		"@typescript-eslint/parser": "^8.47.0",
 		"eslint": "^9.39.1",
