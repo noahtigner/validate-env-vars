@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.1.0
+
+- Remove the install-time package-manager restriction so the package can be installed with npm, pnpm, Yarn, or Bun
+- Do not print environment variable values by default; set `logVars: true` to opt in
+- Add an explicit ESM export map and mark the package as side-effect free
+- Align the documented and tested Node.js minimum version at 20.12.0
+- Modernize CI, package verification, and CodeQL configuration
+- Clarify supported schema types and correct the Vite example in the README
+
 ## 2.0.0
 
 - Add support for Zod Mini
